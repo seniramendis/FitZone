@@ -499,10 +499,9 @@ html, body {
         padding-top: 35px; 
         padding-bottom: 20px; 
         scroll-behavior: smooth;
-        -ms-overflow-style: none; /* Hides scrollbar in IE and Edge */
     }
     
-    /* Hides scrollbar in Chrome/Safari/Edge */
+    /* Hides scrollbar in Chrome/Safari */
     .programs-grid::-webkit-scrollbar, 
     .trainers-grid::-webkit-scrollbar, 
     .pricing-grid::-webkit-scrollbar {

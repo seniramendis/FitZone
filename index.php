@@ -28,7 +28,7 @@
                 <p>Burn calories fast and boost your endurance with high-intensity intervals and top-tier cardio equipment.</p>
             </div>
         </div>
-        <div class="program-card" style="background-image: url('https://images.unsplash.com/photo-1552196563-552592624bb0?q=80&w=800&auto=format&fit=crop');">
+        <div class="program-card" style="background-image: url('https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=800&auto=format&fit=crop');">
             <div class="program-overlay"></div>
             <div class="program-info">
                 <h3>Yoga & Mobility</h3>
@@ -146,7 +146,7 @@
             </ul>
         </div>
         <div class="map-container">
-            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d63320.43004033703!2d80.32431875!3d7.48624125!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ae33a1cebf9c56b%3A0xb3638b99c0b561c1!2sKurunegala!5e0!3m2!1sen!2slk!4v1710100000000!5m2!1sen!2slk" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d126604.28314144419!2d80.2769418659174!3d7.487046039544971!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ae33a1ceac88cb3%3A0xe3ea442079149021!2sKurunegala!5e0!3m2!1sen!2slk!4v1710230000000!5m2!1sen!2slk" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
         </div>
     </div>
 </section>
