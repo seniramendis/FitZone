@@ -7,16 +7,15 @@
     <title>FitZone | Modern Fitness Center</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+
+    <link rel="stylesheet" href="style.css?v=<?php echo time(); ?>">
 
     <style>
-        /* --- BRAND COLORS --- */
         :root {
             --primary-red: #e63946;
             --dark-bg: rgba(17, 24, 39, 0.85);
         }
 
-        /* --- FROSTED GLASS HEADER --- */
         header {
             background: var(--dark-bg);
             backdrop-filter: blur(12px);
@@ -27,16 +26,15 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-
-            /* Change position: sticky to fixed or absolute to prevent pushing the hero down */
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
+            box-sizing: border-box;
             z-index: 1000;
+            transition: all 0.3s ease;
         }
 
-        /* LOGO */
         header .logo {
             display: flex;
             align-items: center;
@@ -70,7 +68,6 @@
             color: var(--primary-red);
         }
 
-        /* NAV CONTAINER (CLEANER WITHOUT SEARCH BAR) */
         .nav-container {
             display: flex;
             align-items: center;
@@ -107,7 +104,6 @@
             background: rgba(255, 255, 255, 0.1);
         }
 
-        /* AUTH BUTTONS */
         .auth-buttons {
             display: flex;
             align-items: center;
@@ -135,7 +131,6 @@
             background: rgba(230, 57, 70, 0.1);
         }
 
-        /* Sleek Button Sweep Animation */
         .btn-register {
             background: var(--primary-red);
             color: #fff;
@@ -145,17 +140,12 @@
 
         .btn-register:hover {
             box-shadow: inset 200px 0 0 0 #c1121f;
-            color: #ffffff;
         }
 
-        /* =========================================
-           FLOATING ISLAND MOBILE MENU
-           ========================================= */
         @media (max-width: 992px) {
             header {
                 padding: 12px 5%;
                 flex-direction: row;
-                justify-content: flex-start;
                 gap: 0;
             }
 
@@ -194,6 +184,7 @@
                 box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
                 z-index: 999;
                 margin-left: 0;
+                box-sizing: border-box;
             }
 
             .nav-container.active {
@@ -253,22 +244,20 @@
                 text-align: center;
                 padding: 12px 0;
                 font-size: 1.05rem;
+                box-sizing: border-box;
             }
         }
     </style>
 </head>
 
 <body>
-
     <header id="main-header">
         <div class="menu-toggle" id="mobile-menu">
             <i class="fa-solid fa-bars"></i>
         </div>
-
         <div class="logo">
             <h1><i class="fa-solid fa-dumbbell"></i>FitZone</h1>
         </div>
-
         <div class="nav-container" id="nav-container">
             <nav>
                 <ul>

@@ -1,4 +1,5 @@
-<?php include 'header.php'; ?>
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/FitZone/header.php'; ?>
+
 
 <style>
     /* Specific styling for the Login Page */
@@ -164,4 +165,4 @@
     </div>
 </section>
 
-<?php include 'footer.php'; ?>
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/FitZone/footer.php'; ?>
