@@ -1,5 +1,4 @@
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/FitZone/header.php'; ?>
-
+<?php include 'header.php'; ?>
 
 <section id="home" class="hero">
     <div class="hero-overlay"></div>
@@ -51,4 +50,23 @@
     </div>
 </section>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/FitZone/footer.php'; ?>
+<section id="location" class="location-section">
+    <h2 class="section-title">Find Your Zone</h2>
+    <div class="location-container">
+        <div class="location-details">
+            <h3>Located in the Heart of Kurunegala</h3>
+            <p>Stop by for a tour of our state-of-the-art facility. Our certified trainers are ready to help you get started on your fitness journey today.</p>
+            <ul class="info-list">
+                <li><i class="fa-solid fa-location-dot"></i> 123 Colombo Road, Kurunegala, Sri Lanka</li>
+                <li><i class="fa-solid fa-clock"></i> Open 24/7 for Members</li>
+                <li><i class="fa-solid fa-phone"></i> +94 77 123 4567</li>
+                <li><i class="fa-solid fa-envelope"></i> info@fitzone.lk</li>
+            </ul>
+        </div>
+        <div class="map-container">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d63320.43004033703!2d80.32431875!3d7.48624125!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ae33a1cebf9c56b%3A0xb3638b99c0b561c1!2sKurunegala!5e0!3m2!1sen!2slk!4v1710100000000!5m2!1sen!2slk" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+    </div>
+</section>
+
+<?php include 'footer.php'; ?>
