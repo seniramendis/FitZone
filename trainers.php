@@ -46,7 +46,6 @@
     .search-container {
         max-width: 600px;
         margin: -30px auto 50px auto;
-        /* Pulls it up slightly over the section below */
         position: relative;
         z-index: 10;
         padding: 0 20px;
@@ -86,6 +85,26 @@
         color: #374151;
         background: transparent;
     }
+
+    /* --- PROFILE BUTTON --- */
+    .btn-profile {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 8px 24px;
+        background: rgba(230, 57, 70, 0.1);
+        color: #e63946;
+        border-radius: 50px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-profile:hover {
+        background: #e63946;
+        color: #fff;
+        transform: translateY(-2px);
+    }
 </style>
 
 <section class="page-header">
@@ -113,6 +132,7 @@
                 <a href="#"><i class="fa-brands fa-instagram"></i></a>
                 <a href="#"><i class="fa-brands fa-twitter"></i></a>
             </div>
+            <a href="trainer_profile.php?id=1" class="btn-profile">View Profile</a>
         </div>
 
         <div class="trainer-card">
@@ -123,6 +143,7 @@
                 <a href="#"><i class="fa-brands fa-instagram"></i></a>
                 <a href="#"><i class="fa-brands fa-twitter"></i></a>
             </div>
+            <a href="trainer_profile.php?id=2" class="btn-profile">View Profile</a>
         </div>
 
         <div class="trainer-card">
@@ -133,6 +154,7 @@
                 <a href="#"><i class="fa-brands fa-instagram"></i></a>
                 <a href="#"><i class="fa-brands fa-twitter"></i></a>
             </div>
+            <a href="trainer_profile.php?id=3" class="btn-profile">View Profile</a>
         </div>
 
         <div class="trainer-card">
@@ -143,6 +165,7 @@
                 <a href="#"><i class="fa-brands fa-instagram"></i></a>
                 <a href="#"><i class="fa-brands fa-twitter"></i></a>
             </div>
+            <a href="trainer_profile.php?id=4" class="btn-profile">View Profile</a>
         </div>
 
         <div class="trainer-card">
@@ -153,6 +176,7 @@
                 <a href="#"><i class="fa-brands fa-instagram"></i></a>
                 <a href="#"><i class="fa-brands fa-twitter"></i></a>
             </div>
+            <a href="trainer_profile.php?id=5" class="btn-profile">View Profile</a>
         </div>
 
         <div class="trainer-card">
@@ -163,28 +187,22 @@
                 <a href="#"><i class="fa-brands fa-instagram"></i></a>
                 <a href="#"><i class="fa-brands fa-twitter"></i></a>
             </div>
+            <a href="trainer_profile.php?id=6" class="btn-profile">View Profile</a>
         </div>
     </div>
 </section>
 
 <script>
     document.getElementById('trainerSearch').addEventListener('keyup', function() {
-        // Get the search value and convert to lowercase
         let searchQuery = this.value.toLowerCase();
-
-        // Get all the trainer cards
         let trainerCards = document.querySelectorAll('.trainer-card');
 
-        // Loop through each card
         trainerCards.forEach(function(card) {
-            // Get the text inside the card (Name and Specialty)
             let cardText = card.textContent.toLowerCase();
-
-            // If the card text includes the search query, show it. Otherwise, hide it.
             if (cardText.includes(searchQuery)) {
-                card.style.display = "block"; // Restores the card
+                card.style.display = "block";
             } else {
-                card.style.display = "none"; // Hides the card
+                card.style.display = "none";
             }
         });
     });
