@@ -146,26 +146,20 @@
             header {
                 padding: 12px 5%;
                 flex-direction: row;
+                justify-content: space-between;
+                /* Pushes Logo left, Menu right */
                 gap: 0;
-            }
-
-            header.menu-open .logo {
-                display: none;
-            }
-
-            header.menu-open {
-                justify-content: flex-start;
             }
 
             .menu-toggle {
                 display: block;
-                margin-right: 20px;
                 z-index: 1001;
-                width: 30px;
             }
 
             header .logo {
                 margin-bottom: 0;
+                z-index: 1001;
+                /* Keeps logo on top of the menu overlay */
             }
 
             .nav-container {
@@ -252,19 +246,21 @@
 
 <body>
     <header id="main-header">
-        <div class="menu-toggle" id="mobile-menu">
-            <i class="fa-solid fa-bars"></i>
-        </div>
         <div class="logo">
             <h1><i class="fa-solid fa-dumbbell"></i>FitZone</h1>
         </div>
+
+        <div class="menu-toggle" id="mobile-menu">
+            <i class="fa-solid fa-bars"></i>
+        </div>
+
         <div class="nav-container" id="nav-container">
             <nav>
                 <ul>
                     <li><a href="index.php#home">Home</a></li>
-                    <li><a href="index.php#classes">Classes</a></li>
-                    <li><a href="index.php#trainers">Trainers</a></li>
-                    <li><a href="index.php#memberships">Pricing</a></li>
+                    <li><a href="classes.php">Classes</a></li>
+                    <li><a href="trainers.php">Trainers</a></li>
+                    <li><a href="pricing.php">Pricing</a></li>
                     <li><a href="blog.php">Blog</a></li>
                 </ul>
             </nav>
