@@ -1,6 +1,5 @@
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/FitZone/header.php'; ?>
 
-
 <style>
     /* Specific styling for the Login Page */
     .auth-section {
@@ -57,7 +56,7 @@
 
     .auth-form {
         text-align: left;
-        margin-top: 35px;
+        margin-top: 25px;
     }
 
     .form-group {
@@ -140,9 +139,18 @@
     <div class="auth-container">
         <div class="auth-card">
             <h2>Welcome <span class="text-red">Back</span></h2>
-            <p>Ready to hit your targets today?</p>
+            <p style="margin-bottom: 20px;">Ready to hit your targets today?</p>
 
-            <form action="process_login.php" method="POST" class="auth-form">
+            <?php if (isset($_GET['success']) && $_GET['success'] == 'registered'): ?>
+                <div style="background: rgba(46, 204, 113, 0.2); border: 1px solid #2ecc71; color: #fff; padding: 12px; border-radius: 8px; margin-bottom: 20px; text-align: left; font-size: 0.9rem;">
+                    <i class="fa-solid fa-circle-check"></i> Registration successful! You can now log in.
+                </div>
+            <?php elseif (isset($_GET['error']) && $_GET['error'] == 'invalid'): ?>
+                <div style="background: rgba(230,57,70,0.2); border: 1px solid #e63946; color: #fff; padding: 12px; border-radius: 8px; margin-bottom: 20px; text-align: left; font-size: 0.9rem;">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Invalid email or password.
+                </div>
+            <?php endif; ?>
+            <form action="process_login.php" method="POST" class="auth-form" style="margin-top: 10px;">
                 <div class="form-group">
                     <label>Email Address</label>
                     <input type="email" name="email" placeholder="name@example.com" required>

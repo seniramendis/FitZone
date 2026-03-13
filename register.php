@@ -1,6 +1,5 @@
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/FitZone/header.php'; ?>
 
-
 <style>
     /* Specific styling for the Register Page */
     .auth-section {
@@ -57,7 +56,7 @@
 
     .auth-form {
         text-align: left;
-        margin-top: 35px;
+        margin-top: 25px;
     }
 
     .form-group {
@@ -90,6 +89,11 @@
         border-color: #e63946;
         background: rgba(255, 255, 255, 0.08);
         box-shadow: 0 0 0 4px rgba(230, 57, 70, 0.15);
+    }
+
+    .form-group select option {
+        color: #374151;
+        /* Dark text for dropdown options so they are readable */
     }
 
     .btn-auth {
@@ -129,9 +133,18 @@
     <div class="auth-container">
         <div class="auth-card">
             <h2>Join the <span class="text-red">Tribe</span></h2>
-            <p>Start your transformation today.</p>
+            <p style="margin-bottom: 20px;">Start your transformation today.</p>
 
-            <form action="process_register.php" method="POST" class="auth-form">
+            <?php if (isset($_GET['error']) && $_GET['error'] == 'email_exists'): ?>
+                <div style="background: rgba(230,57,70,0.2); border: 1px solid #e63946; color: #fff; padding: 12px; border-radius: 8px; margin-bottom: 20px; text-align: left; font-size: 0.9rem;">
+                    <i class="fa-solid fa-triangle-exclamation"></i> This email is already registered. Please log in.
+                </div>
+            <?php elseif (isset($_GET['error']) && $_GET['error'] == 'db_error'): ?>
+                <div style="background: rgba(230,57,70,0.2); border: 1px solid #e63946; color: #fff; padding: 12px; border-radius: 8px; margin-bottom: 20px; text-align: left; font-size: 0.9rem;">
+                    <i class="fa-solid fa-triangle-exclamation"></i> A database error occurred. Please try again.
+                </div>
+            <?php endif; ?>
+            <form action="process_register.php" method="POST" class="auth-form" style="margin-top: 10px;">
                 <div class="form-group">
                     <label>Full Name</label>
                     <input type="text" name="fullname" placeholder="Enter your name" required>

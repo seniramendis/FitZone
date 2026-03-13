@@ -1,3 +1,9 @@
+<?php
+// Start the session at the very beginning of the header if it hasn't started yet
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -142,12 +148,114 @@
             box-shadow: inset 200px 0 0 0 #c1121f;
         }
 
+        /* --- NEW PROFILE DROPDOWN STYLING --- */
+        .user-profile-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .profile-icon {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .profile-icon:hover,
+        .user-profile-dropdown.active .profile-icon {
+            border-color: var(--primary-red);
+            background: rgba(230, 57, 70, 0.1);
+            color: var(--primary-red);
+        }
+
+        .profile-dropdown-menu {
+            position: absolute;
+            top: 130%;
+            right: 0;
+            width: 220px;
+            background: rgba(17, 24, 39, 0.98);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 10px 0;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(15px);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+        }
+
+        /* Show on hover for desktop, or click for mobile */
+        .user-profile-dropdown:hover .profile-dropdown-menu,
+        .user-profile-dropdown.active .profile-dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-header-custom {
+            padding: 12px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            margin-bottom: 8px;
+            text-align: left;
+        }
+
+        .dropdown-header-custom strong {
+            color: #fff;
+            display: block;
+            font-size: 1rem;
+        }
+
+        .dropdown-header-custom span {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .profile-dropdown-menu a {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            color: #d1d5db;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+
+        .profile-dropdown-menu a i {
+            margin-right: 12px;
+            width: 16px;
+            text-align: center;
+            color: var(--primary-red);
+        }
+
+        .profile-dropdown-menu a:hover {
+            background: rgba(230, 57, 70, 0.1);
+            color: #fff;
+            padding-left: 25px;
+        }
+
+        .logout-link:hover i {
+            color: #fff !important;
+        }
+
         @media (max-width: 992px) {
             header {
                 padding: 12px 5%;
                 flex-direction: row;
                 justify-content: space-between;
-                /* Pushes Logo left, Menu right */
                 gap: 0;
             }
 
@@ -159,7 +267,6 @@
             header .logo {
                 margin-bottom: 0;
                 z-index: 1001;
-                /* Keeps logo on top of the menu overlay */
             }
 
             .nav-container {
@@ -218,11 +325,6 @@
                 font-size: 1.05rem;
             }
 
-            nav a:hover {
-                background: rgba(230, 57, 70, 0.1);
-                color: var(--primary-red);
-            }
-
             .auth-buttons {
                 flex-direction: column;
                 width: 100%;
@@ -230,15 +332,40 @@
                 margin-top: 15px;
                 padding-top: 15px;
                 border-top: 1px solid rgba(255, 255, 255, 0.05);
+                align-items: center;
             }
 
-            .btn-login,
-            .btn-register {
+            /* Adjust dropdown for mobile */
+            .user-profile-dropdown {
                 width: 100%;
+            }
+
+            .profile-icon {
+                margin: 0 auto;
+            }
+
+            .profile-dropdown-menu {
+                position: relative;
+                top: 0;
+                width: 100%;
+                box-shadow: none;
+                background: transparent;
+                border: none;
+                display: none;
+                opacity: 1;
+                visibility: visible;
+                transform: none;
+                padding-top: 15px;
+            }
+
+            .user-profile-dropdown.active .profile-dropdown-menu {
+                display: block;
+            }
+
+            .dropdown-header-custom,
+            .profile-dropdown-menu a {
                 text-align: center;
-                padding: 12px 0;
-                font-size: 1.05rem;
-                box-sizing: border-box;
+                justify-content: center;
             }
         }
     </style>
@@ -257,16 +384,64 @@
         <div class="nav-container" id="nav-container">
             <nav>
                 <ul>
-                    <li><a href="index.php#home">Home</a></li>
+                    <li><a href="index.php">Home</a></li>
                     <li><a href="classes.php">Classes</a></li>
                     <li><a href="trainers.php">Trainers</a></li>
                     <li><a href="pricing.php">Pricing</a></li>
                     <li><a href="blog.php">Blog</a></li>
+                    <li><a href="contact.php">Contact</a></li>
                 </ul>
             </nav>
             <div class="auth-buttons">
-                <a href="login.php" class="btn-login">Login</a>
-                <a href="register.php" class="btn-register">Register</a>
+                <?php if (isset($_SESSION['user_id'])): ?>
+
+                    <?php
+                    // Route to the correct dashboard based on role
+                    $dashboard_url = 'member_dashboard.php';
+                    if ($_SESSION['role'] == 'admin') {
+                        $dashboard_url = 'admin_dashboard.php';
+                    } elseif ($_SESSION['role'] == 'trainer') {
+                        $dashboard_url = 'trainer_dashboard.php';
+                    }
+
+                    // Grab the FULL name here so edits show immediately
+                    $fullName = $_SESSION['fullname'];
+                    $roleLabel = ucfirst($_SESSION['role']);
+                    ?>
+
+                    <div class="user-profile-dropdown" onclick="this.classList.toggle('active')">
+                        <div class="profile-icon">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <div class="profile-dropdown-menu">
+                            <div class="dropdown-header-custom">
+                                <strong><?php echo htmlspecialchars($fullName); ?></strong>
+                                <span><?php echo htmlspecialchars($roleLabel); ?></span>
+                            </div>
+                            <a href="<?php echo $dashboard_url; ?>"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+                            <a href="edit_profile.php"><i class="fa-solid fa-user-pen"></i> Edit Profile</a>
+
+                            <div style="height: 1px; background: rgba(255,255,255,0.08); margin: 8px 0;"></div>
+
+                            <a href="logout.php" class="logout-link" style="color: #ef4444;">
+                                <i class="fa-solid fa-right-from-bracket" style="color: #ef4444;"></i> Logout
+                            </a>
+                        </div>
+                    </div>
+
+                <?php else: ?>
+
+                    <a href="login.php" class="btn-login">Login</a>
+                    <a href="register.php" class="btn-register">Register</a>
+
+                <?php endif; ?>
             </div>
         </div>
     </header>
+
+    <script>
+        // Simple JS to handle mobile menu toggle
+        document.getElementById('mobile-menu').addEventListener('click', function() {
+            document.getElementById('nav-container').classList.toggle('active');
+        });
+    </script>
