@@ -1,5 +1,4 @@
 <?php
-// 1. SECURITY CHECK: Ensure only Trainers can access this page
 session_start();
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'trainer') {
     header("Location: login.php");
@@ -9,23 +8,18 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'trainer') {
 include 'header.php';
 require 'db_config.php';
 
-// 2. FETCH TRAINER DATA
-// We use the trainer's full name from their session to find their specific bookings
 $trainer_name = $conn->real_escape_string($_SESSION['fullname']);
 
-// Get total all-time bookings for this trainer
 $total_query = $conn->query("SELECT COUNT(*) AS total FROM bookings WHERE trainer_name = '$trainer_name'");
 $total_clients = $total_query->fetch_assoc()['total'];
 
-// Get upcoming bookings (from today onwards)
 $current_date = date('Y-m-d');
 $upcoming_query = $conn->query("SELECT COUNT(*) AS total FROM bookings WHERE trainer_name = '$trainer_name' AND booking_date >= '$current_date'");
 $upcoming_sessions = $upcoming_query->fetch_assoc()['total'];
 
-// 3. THE ADVANCED SQL JOIN (Crucial for high marks)
-// We join the 'bookings' table with the 'users' table so the trainer can see the names of the members who booked!
+// Grabs 'b.id' so we can update specific bookings
 $schedule_query = $conn->query("
-    SELECT b.class_name, b.booking_date, b.booking_time, b.status, u.fullname AS member_name 
+    SELECT b.id AS booking_id, b.class_name, b.booking_date, b.booking_time, b.status, u.fullname AS member_name 
     FROM bookings b 
     JOIN users u ON b.user_id = u.id 
     WHERE b.trainer_name = '$trainer_name' 
@@ -50,7 +44,6 @@ $schedule_query = $conn->query("
         margin-bottom: 50px;
     }
 
-    /* Trainer Sidebar */
     .dash-sidebar {
         background: var(--fz-dark);
         border-radius: 16px;
@@ -82,7 +75,17 @@ $schedule_query = $conn->query("
         color: #fff;
     }
 
-    /* Stat Cards */
+    .dash-nav-link.logout {
+        color: #dc3545;
+        margin-top: 30px;
+        background-color: rgba(220, 53, 69, 0.1);
+    }
+
+    .dash-nav-link.logout:hover {
+        background-color: #dc3545;
+        color: #fff;
+    }
+
     .stat-card {
         background: #fff;
         border-radius: 16px;
@@ -107,7 +110,6 @@ $schedule_query = $conn->query("
         text-transform: uppercase;
     }
 
-    /* Tables */
     .table-card {
         background: #fff;
         border-radius: 16px;
@@ -127,11 +129,17 @@ $schedule_query = $conn->query("
 </style>
 
 <div class="container dashboard-wrapper">
-
     <div class="row mb-4">
         <div class="col-12">
             <h2 class="fw-bold text-dark">Instructor <span style="color: var(--fz-red);">Portal</span></h2>
             <p class="text-muted">Welcome back, <?php echo htmlspecialchars($trainer_name); ?>. Here is your class schedule.</p>
+
+            <?php if (isset($_GET['success']) && $_GET['success'] == 'confirmed'): ?>
+                <div class="alert alert-success alert-dismissible fade show mt-2" role="alert">
+                    <i class="fa-solid fa-circle-check me-2"></i> Booking successfully confirmed!
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -139,13 +147,11 @@ $schedule_query = $conn->query("
         <div class="col-lg-3 mb-4 mb-lg-0">
             <div class="dash-sidebar">
                 <a href="trainer_dashboard.php" class="dash-nav-link active"><i class="fa-solid fa-calendar-days"></i> My Schedule</a>
-                <a href="#" class="dash-nav-link"><i class="fa-solid fa-users"></i> Client Roster</a>
-                <a href="edit_profile.php" class="dash-nav-link"><i class="fa-solid fa-gear"></i> Settings</a>
+                <a href="logout.php" class="dash-nav-link logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
             </div>
         </div>
 
         <div class="col-lg-9">
-
             <div class="row g-3">
                 <div class="col-md-6">
                     <div class="stat-card">
@@ -170,7 +176,7 @@ $schedule_query = $conn->query("
                                 <th>Class Info</th>
                                 <th>Member Name</th>
                                 <th>Date & Time</th>
-                                <th>Status</th>
+                                <th>Status / Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -178,35 +184,36 @@ $schedule_query = $conn->query("
                                 <?php while ($row = $schedule_query->fetch_assoc()): ?>
                                     <tr>
                                         <td class="fw-bold text-dark"><?php echo htmlspecialchars($row['class_name']); ?></td>
-
-                                        <td class="text-primary fw-bold">
-                                            <i class="fa-solid fa-user me-2 text-muted"></i><?php echo htmlspecialchars($row['member_name']); ?>
-                                        </td>
-
+                                        <td class="text-primary fw-bold"><i class="fa-solid fa-user me-2 text-muted"></i><?php echo htmlspecialchars($row['member_name']); ?></td>
                                         <td class="text-muted small">
                                             <i class="fa-regular fa-calendar me-1"></i> <?php echo date('M d, Y', strtotime($row['booking_date'])); ?><br>
                                             <i class="fa-regular fa-clock me-1"></i> <?php echo htmlspecialchars($row['booking_time']); ?>
                                         </td>
                                         <td>
-                                            <span class="badge bg-success bg-opacity-10 text-success border border-success rounded-pill px-3">
-                                                <?php echo htmlspecialchars($row['status']); ?>
-                                            </span>
+                                            <?php if ($row['status'] == 'Pending'): ?>
+                                                <form action="update_booking_status.php" method="POST" class="m-0">
+                                                    <input type="hidden" name="booking_id" value="<?php echo $row['booking_id']; ?>">
+                                                    <button type="submit" class="btn btn-sm btn-primary fw-bold px-3 rounded-pill shadow-sm">
+                                                        Confirm Booking
+                                                    </button>
+                                                </form>
+                                            <?php else: ?>
+                                                <span class="badge bg-success bg-opacity-10 text-success border border-success rounded-pill px-3 py-2">
+                                                    <i class="fa-solid fa-check me-1"></i> Confirmed
+                                                </span>
+                                            <?php endif; ?>
                                         </td>
                                     </tr>
                                 <?php endwhile; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="4" class="text-center text-muted py-5">
-                                        <i class="fa-solid fa-clipboard-list fs-2 mb-3 d-block opacity-50"></i>
-                                        You currently have no members booked for your classes.
-                                    </td>
+                                    <td colspan="4" class="text-center text-muted py-5"><i class="fa-solid fa-clipboard-list fs-2 mb-3 d-block opacity-50"></i>You currently have no members booked.</td>
                                 </tr>
                             <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
             </div>
-
         </div>
     </div>
 </div>

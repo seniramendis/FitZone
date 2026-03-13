@@ -1,12 +1,16 @@
 <?php
 require 'db_config.php';
 
-// Generate a REAL, valid encrypted hash for the password '123'
-$real_hash = password_hash('123', PASSWORD_DEFAULT);
+// 1. Force the database column to accept the word 'Pending'
+$conn->query("ALTER TABLE bookings MODIFY COLUMN status ENUM('Pending', 'Confirmed', 'Waitlist', 'Cancelled') DEFAULT 'Pending'");
 
-// Update all the trainers you just added in phpMyAdmin to use this real hash
-if ($conn->query("UPDATE users SET password = '$real_hash' WHERE role = 'trainer'")) {
-    echo "<h2 style='color: green;'>Success! All trainer passwords are now fixed.</h2>";
-    echo "<h3>The password is: <strong>123</strong></h3>";
-    echo "<a href='login.php'>Click here to login</a>";
+// 2. Change every single booking in the system to 'Pending'
+if ($conn->query("UPDATE bookings SET status = 'Pending'")) {
+    echo "<div style='text-align: center; margin-top: 50px; font-family: sans-serif;'>";
+    echo "<h1 style='color: #2ecc71;'>✅ Database Successfully Fixed!</h1>";
+    echo "<h3>All classes have been reset to 'Pending'.</h3>";
+    echo "<a href='trainer_dashboard.php' style='display: inline-block; margin-top: 20px; padding: 15px 30px; background: #e63946; color: white; text-decoration: none; border-radius: 10px; font-weight: bold;'>Go to Trainer Dashboard</a>";
+    echo "</div>";
+} else {
+    echo "<h1>Database Error: " . $conn->error . "</h1>";
 }

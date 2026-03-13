@@ -10,19 +10,19 @@ if (!isset($_SESSION['user_id'])) {
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    // 1. Grab data including the NEW trainer_name
+    // 1. Grab data
     $user_id = $_SESSION['user_id'];
     $class_name = $conn->real_escape_string($_POST['class_name']);
     $trainer_name = $conn->real_escape_string($_POST['trainer_name']);
     $booking_date = $conn->real_escape_string($_POST['booking_date']);
     $booking_time = $conn->real_escape_string($_POST['booking_time']);
 
-    // 2. Insert everything into database (including trainer_name)
+    // 2. Insert everything into database with the default status as 'Pending'
     $sql = "INSERT INTO bookings (user_id, class_name, trainer_name, booking_date, booking_time, status) 
-            VALUES ('$user_id', '$class_name', '$trainer_name', '$booking_date', '$booking_time', 'Confirmed')";
+            VALUES ('$user_id', '$class_name', '$trainer_name', '$booking_date', '$booking_time', 'Pending')";
 
     if ($conn->query($sql) === TRUE) {
-        // Redirect to Dashboard instead of classes page to see the new booking
+        // Redirect to Dashboard to see the new booking
         header("Location: member_dashboard.php?success=booked");
         exit();
     } else {
