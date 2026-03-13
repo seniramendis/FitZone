@@ -11,7 +11,8 @@ $trainers_data = [
         'experience' => '10+ Years',
         'email' => 'nuwan@fitzone.lk',
         'skills' => ['Powerlifting' => 95, 'Hypertrophy' => 90, 'Form & Mobility' => 85],
-        'certs' => ['ISSA Certified', 'SLPA Strength Coach']
+        'certs' => ['ISSA Certified', 'SLPA Strength Coach'],
+        'class_id' => 1 // Links to "Strength & Power"
     ],
     2 => [
         'name' => 'Dilani Silva',
@@ -21,7 +22,8 @@ $trainers_data = [
         'experience' => '8 Years',
         'email' => 'dilani@fitzone.lk',
         'skills' => ['Ashtanga Yoga' => 95, 'Joint Mobility' => 90, 'Mindfulness' => 80],
-        'certs' => ['RYT 200', 'Mobility Specialist']
+        'certs' => ['RYT 200', 'Mobility Specialist'],
+        'class_id' => 3 // Links to "Yoga & Mobility"
     ],
     3 => [
         'name' => 'Kavindu Jayawardena',
@@ -31,7 +33,41 @@ $trainers_data = [
         'experience' => '5 Years',
         'email' => 'kavindu@fitzone.lk',
         'skills' => ['HIIT Programming' => 95, 'Cardio Endurance' => 85, 'Fat Loss' => 90],
-        'certs' => ['ACE Certified', 'Advanced HIIT Instructor']
+        'certs' => ['ACE Certified', 'Advanced HIIT Instructor'],
+        'class_id' => 2 // Links to "Cardio & HIIT"
+    ],
+    4 => [
+        'name' => 'Senuri Fernando',
+        'specialty' => 'Pilates & Core Expert',
+        'image' => 'https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=600&auto=format&fit=crop',
+        'bio' => 'Senuri focuses on core strength and stability. Her Pilates sessions are designed to improve posture, balance, and mind-body connection.',
+        'experience' => '6 Years',
+        'email' => 'senuri@fitzone.lk',
+        'skills' => ['Pilates' => 95, 'Core Stability' => 90, 'Posture Correction' => 85],
+        'certs' => ['Certified Pilates Instructor'],
+        'class_id' => 6 // Links to "Zumba & Dance"
+    ],
+    5 => [
+        'name' => 'Roshan Silva',
+        'specialty' => 'Boxing & Martial Arts',
+        'image' => 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=600&auto=format&fit=crop',
+        'bio' => 'Roshan is a former competitive fighter. He combines cardiovascular endurance with technical striking to help you get fit while learning self-defense.',
+        'experience' => '12 Years',
+        'email' => 'roshan@fitzone.lk',
+        'skills' => ['Boxing' => 95, 'Kickboxing' => 85, 'Agility' => 90],
+        'certs' => ['Professional Boxing Coach'],
+        'class_id' => 4 // Links to "Boxing & Martial Arts"
+    ],
+    6 => [
+        'name' => 'Malith Kumara',
+        'specialty' => 'CrossFit & Conditioning',
+        'image' => 'https://images.unsplash.com/photo-1558611848-73f7eb4001a1?q=80&w=600&auto=format&fit=crop',
+        'bio' => 'Malith brings intensity and functional movement together. His CrossFit classes are legendary for building elite all-around athleticism.',
+        'experience' => '7 Years',
+        'email' => 'malith@fitzone.lk',
+        'skills' => ['Olympic Lifting' => 90, 'Gymnastics' => 80, 'Metabolic Conditioning' => 95],
+        'certs' => ['CrossFit Level 2 Trainer'],
+        'class_id' => 5 // Links to "CrossFit & Conditioning"
     ]
 ];
 
@@ -87,7 +123,6 @@ $trainer = $trainers_data[$trainer_id];
         background-color: var(--fz-red);
         border-radius: 10px;
         width: 0%;
-        /* Start at 0 for animation */
         transition: width 2s cubic-bezier(0.1, 0.42, 0.41, 1);
     }
 
@@ -184,7 +219,13 @@ $trainer = $trainers_data[$trainer_id];
 
                 <div class="pt-4 border-top d-flex flex-column flex-md-row align-items-center justify-content-between">
                     <p class="text-muted mb-4 mb-md-0 me-md-4">Ready to hit your targets? Join <?php echo explode(' ', $trainer['name'])[0]; ?> and start your fitness journey today.</p>
-                    <a href="register.php" class="btn-transformation">Start Your Transformation</a>
+
+                    <?php if (isset($_SESSION['user_id'])): ?>
+                        <a href="class_details.php?id=<?php echo $trainer['class_id']; ?>" class="btn-transformation">Book a Session</a>
+                    <?php else: ?>
+                        <a href="register.php" class="btn-transformation">Start Your Transformation</a>
+                    <?php endif; ?>
+
                 </div>
             </div>
         </div>

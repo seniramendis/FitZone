@@ -46,7 +46,6 @@
     .search-container {
         max-width: 600px;
         margin: -30px auto 50px auto;
-        /* Pulls it up slightly over the section below */
         position: relative;
         z-index: 10;
         padding: 0 20px;
@@ -86,6 +85,40 @@
         color: #374151;
         background: transparent;
     }
+
+    /* --- BOOK NOW BUTTON HOVER STYLING --- */
+    .btn-book-class {
+        display: inline-block;
+        margin-top: 15px;
+        padding: 8px 20px;
+        background-color: #e63946;
+        color: #fff !important;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        border-radius: 6px;
+        text-decoration: none;
+        letter-spacing: 1px;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+        /* Hidden by default */
+        opacity: 0;
+        transform: translateY(20px);
+        pointer-events: none;
+    }
+
+    /* Reveal button when hovering over the program card */
+    .program-card:hover .btn-book-class {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+    }
+
+    .btn-book-class:hover {
+        background-color: #c1121f;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(230, 57, 70, 0.4);
+    }
 </style>
 
 <section class="page-header">
@@ -110,6 +143,7 @@
             <div class="program-info">
                 <h3>Strength & Power</h3>
                 <p>Build muscle and increase your raw power with our premium free weights and resistance machines.</p>
+                <a href="class_details.php?id=1" class="btn-book-class">View & Book</a>
             </div>
         </div>
 
@@ -118,6 +152,7 @@
             <div class="program-info">
                 <h3>Cardio & HIIT</h3>
                 <p>Burn calories fast and boost your endurance with high-intensity intervals and top-tier cardio equipment.</p>
+                <a href="class_details.php?id=2" class="btn-book-class">View & Book</a>
             </div>
         </div>
 
@@ -126,6 +161,7 @@
             <div class="program-info">
                 <h3>Yoga & Mobility</h3>
                 <p>Enhance your flexibility, balance, and core strength in our guided, relaxing studio sessions.</p>
+                <a href="class_details.php?id=3" class="btn-book-class">View & Book</a>
             </div>
         </div>
 
@@ -134,6 +170,7 @@
             <div class="program-info">
                 <h3>Boxing & Martial Arts</h3>
                 <p>Improve your agility, speed, and self-defense skills with our heavy bags and expert striking coaches.</p>
+                <a href="class_details.php?id=4" class="btn-book-class">View & Book</a>
             </div>
         </div>
 
@@ -142,6 +179,7 @@
             <div class="program-info">
                 <h3>CrossFit & Conditioning</h3>
                 <p>A hardcore mix of Olympic weightlifting, gymnastics, and aerobic exercise for ultimate functional fitness.</p>
+                <a href="class_details.php?id=5" class="btn-book-class">View & Book</a>
             </div>
         </div>
 
@@ -150,6 +188,7 @@
             <div class="program-info">
                 <h3>Zumba & Dance</h3>
                 <p>Burn calories while having a blast. A high-energy, rhythm-based workout perfect for all fitness levels.</p>
+                <a href="class_details.php?id=6" class="btn-book-class">View & Book</a>
             </div>
         </div>
     </div>
@@ -157,22 +196,15 @@
 
 <script>
     document.getElementById('classSearch').addEventListener('keyup', function() {
-        // Get the search value and convert to lowercase
         let searchQuery = this.value.toLowerCase();
-
-        // Get all the class cards
         let classCards = document.querySelectorAll('.program-card');
 
-        // Loop through each card
         classCards.forEach(function(card) {
-            // Get the text inside the card (the H3 title and P description)
             let cardText = card.textContent.toLowerCase();
-
-            // If the card text includes the search query, show it. Otherwise, hide it.
             if (cardText.includes(searchQuery)) {
-                card.style.display = "flex"; // Restores the default display type
+                card.style.display = "flex";
             } else {
-                card.style.display = "none"; // Hides the card completely
+                card.style.display = "none";
             }
         });
     });
