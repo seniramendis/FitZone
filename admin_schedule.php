@@ -1,5 +1,7 @@
 <?php
 session_start();
+
+// SECURITY: Only Admins can access this page
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header("Location: login.php");
     exit();
@@ -8,24 +10,21 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 include 'header.php';
 require 'db_config.php';
 
-$member_query = $conn->query("SELECT COUNT(id) AS total FROM users WHERE role = 'member'");
-$total_members = $member_query->fetch_assoc()['total'];
+// Handle Booking Deletion directly on this page
+if (isset($_GET['delete_id'])) {
+    $delete_id = $conn->real_escape_string($_GET['delete_id']);
+    $conn->query("DELETE FROM bookings WHERE id = '$delete_id'");
+    header("Location: admin_schedule.php?success=deleted");
+    exit();
+}
 
-$trainers_query = $conn->query("SELECT COUNT(*) AS total FROM users WHERE role = 'trainer'");
-$total_trainers = $trainers_query->fetch_assoc()['total'];
-
-$bookings_count_query = $conn->query("SELECT COUNT(*) AS total FROM bookings");
-$total_bookings = $bookings_count_query->fetch_assoc()['total'];
-
-$master_schedule_query = $conn->query("
+// Fetch ALL bookings, ordered by closest upcoming date (ASCENDING)
+$schedule_query = $conn->query("
     SELECT b.id, b.class_name, b.trainer_name, b.booking_date, b.booking_time, b.status, u.fullname AS member_name 
     FROM bookings b 
     JOIN users u ON b.user_id = u.id 
-    ORDER BY b.booking_date DESC, b.booking_time DESC
+    ORDER BY b.booking_date ASC, b.booking_time ASC
 ");
-
-$recent_queries = $conn->query("SELECT * FROM queries ORDER BY id DESC LIMIT 5");
-$recent_users = $conn->query("SELECT * FROM users WHERE role = 'member' ORDER BY id DESC LIMIT 5");
 ?>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -87,63 +86,11 @@ $recent_users = $conn->query("SELECT * FROM users WHERE role = 'member' ORDER BY
         color: #fff;
     }
 
-    .admin-stat-card {
-        background: #fff;
-        border-radius: 16px;
-        padding: 25px;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.03);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        height: 100%;
-    }
-
-    .admin-stat-card .icon-box {
-        width: 60px;
-        height: 60px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-    }
-
-    .bg-red-light {
-        background: rgba(230, 57, 70, 0.1);
-        color: var(--fz-red);
-    }
-
-    .bg-blue-light {
-        background: rgba(59, 130, 246, 0.1);
-        color: #3b82f6;
-    }
-
-    .bg-green-light {
-        background: rgba(16, 185, 129, 0.1);
-        color: #10b981;
-    }
-
-    .admin-stat-card h3 {
-        font-size: 1.8rem;
-        font-weight: 800;
-        margin: 0;
-        color: var(--fz-dark);
-    }
-
-    .admin-stat-card p {
-        color: #6b7280;
-        font-weight: 600;
-        margin: 0;
-        font-size: 0.85rem;
-        text-transform: uppercase;
-    }
-
     .table-card {
         background: #fff;
         border-radius: 16px;
         padding: 25px;
         box-shadow: 0 5px 20px rgba(0, 0, 0, 0.03);
-        margin-top: 30px;
     }
 
     .table thead th {
@@ -159,11 +106,11 @@ $recent_users = $conn->query("SELECT * FROM users WHERE role = 'member' ORDER BY
 <div class="container dashboard-wrapper">
     <div class="row mb-4">
         <div class="col-12">
-            <h2 class="fw-bold text-dark">Management <span style="color: var(--fz-blue);">Portal</span></h2>
-            <p class="text-muted">System Overview & Administration</p>
+            <h2 class="fw-bold text-dark">Master <span style="color: var(--fz-blue);">Class Schedule</span></h2>
+            <p class="text-muted">View and manage the full timeline of upcoming gym classes.</p>
             <?php if (isset($_GET['success']) && $_GET['success'] == 'deleted'): ?>
                 <div class="alert alert-success alert-dismissible fade show mt-2" role="alert">
-                    <i class="fa-solid fa-circle-check me-2"></i> Booking permanently deleted!
+                    <i class="fa-solid fa-circle-check me-2"></i> Booking successfully removed from the schedule.
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             <?php endif; ?>
@@ -173,73 +120,49 @@ $recent_users = $conn->query("SELECT * FROM users WHERE role = 'member' ORDER BY
     <div class="row">
         <div class="col-lg-3 mb-4 mb-lg-0">
             <div class="dash-sidebar">
-                <a href="admin_dashboard.php" class="dash-nav-link active"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                <a href="admin_dashboard.php" class="dash-nav-link"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
                 <a href="admin_members.php" class="dash-nav-link"><i class="fa-solid fa-users"></i> Manage Members</a>
                 <a href="admin_queries.php" class="dash-nav-link"><i class="fa-solid fa-envelope-open-text"></i> Customer Queries</a>
-                <a href="admin_schedule.php" class="dash-nav-link"><i class="fa-solid fa-dumbbell"></i> Class Schedule</a>
+                <a href="admin_schedule.php" class="dash-nav-link active"><i class="fa-solid fa-dumbbell"></i> Class Schedule</a>
                 <a href="logout.php" class="dash-nav-link logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
             </div>
         </div>
 
         <div class="col-lg-9">
-            <div class="row g-3">
-                <div class="col-md-4">
-                    <div class="admin-stat-card">
-                        <div>
-                            <p>Total Members</p>
-                            <h3><?php echo $total_members; ?></h3>
-                        </div>
-                        <div class="icon-box bg-blue-light"><i class="fa-solid fa-users"></i></div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="admin-stat-card">
-                        <div>
-                            <p>Active Trainers</p>
-                            <h3><?php echo $total_trainers; ?></h3>
-                        </div>
-                        <div class="icon-box bg-red-light"><i class="fa-solid fa-user-ninja"></i></div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="admin-stat-card">
-                        <div>
-                            <p>Total Bookings</p>
-                            <h3><?php echo $total_bookings; ?></h3>
-                        </div>
-                        <div class="icon-box bg-green-light"><i class="fa-solid fa-calendar-check"></i></div>
-                    </div>
-                </div>
-            </div>
-
             <div class="table-card">
-                <h5 class="fw-bold mb-4">Master Booking Ledger</h5>
+                <h5 class="fw-bold mb-4"><i class="fa-regular fa-calendar-days me-2 text-primary"></i> Upcoming Timeline</h5>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
                         <thead>
                             <tr>
                                 <th>Booking ID</th>
-                                <th>Class & Trainer</th>
-                                <th>Member</th>
+                                <th>Class Info</th>
+                                <th>Member Name</th>
                                 <th>Date & Time</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php if ($master_schedule_query->num_rows > 0): ?>
-                                <?php while ($row = $master_schedule_query->fetch_assoc()): ?>
+                            <?php if ($schedule_query->num_rows > 0): ?>
+                                <?php while ($row = $schedule_query->fetch_assoc()): ?>
                                     <tr>
                                         <td class="text-muted fw-bold">#<?php echo str_pad($row['id'], 4, '0', STR_PAD_LEFT); ?></td>
+
                                         <td class="fw-bold text-dark">
                                             <?php echo htmlspecialchars($row['class_name']); ?><br>
                                             <span class="text-danger small fw-bold text-uppercase">Led by <?php echo htmlspecialchars($row['trainer_name']); ?></span>
                                         </td>
-                                        <td class="text-primary fw-bold"><i class="fa-solid fa-user me-2 text-muted"></i><?php echo htmlspecialchars($row['member_name']); ?></td>
-                                        <td class="text-muted small">
-                                            <i class="fa-regular fa-calendar me-1"></i> <?php echo date('M d, Y', strtotime($row['booking_date'])); ?><br>
-                                            <i class="fa-regular fa-clock me-1"></i> <?php echo htmlspecialchars($row['booking_time']); ?>
+
+                                        <td class="text-primary fw-bold">
+                                            <i class="fa-solid fa-user me-2 text-muted"></i><?php echo htmlspecialchars($row['member_name']); ?>
                                         </td>
+
+                                        <td class="text-muted small">
+                                            <i class="fa-regular fa-calendar text-primary me-1"></i> <?php echo date('M d, Y', strtotime($row['booking_date'])); ?><br>
+                                            <i class="fa-regular fa-clock text-primary me-1"></i> <?php echo htmlspecialchars($row['booking_time']); ?>
+                                        </td>
+
                                         <td>
                                             <?php if ($row['status'] == 'Confirmed'): ?>
                                                 <span class="badge bg-success bg-opacity-10 text-success border border-success rounded-pill px-3 py-1">Confirmed</span>
@@ -249,17 +172,20 @@ $recent_users = $conn->query("SELECT * FROM users WHERE role = 'member' ORDER BY
                                                 <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary rounded-pill px-3 py-1"><?php echo htmlspecialchars($row['status']); ?></span>
                                             <?php endif; ?>
                                         </td>
+
                                         <td>
-                                            <form action="delete_booking.php" method="POST" class="m-0" onsubmit="return confirm('Are you sure you want to permanently delete this booking?');">
-                                                <input type="hidden" name="booking_id" value="<?php echo $row['id']; ?>">
-                                                <button type="submit" class="btn btn-sm btn-outline-danger fw-bold rounded-pill px-3"><i class="fa-solid fa-trash-can"></i></button>
-                                            </form>
+                                            <a href="admin_schedule.php?delete_id=<?php echo $row['id']; ?>" class="btn btn-sm btn-outline-danger fw-bold rounded-pill px-3" onclick="return confirm('Are you sure you want to cancel and delete this booking?');">
+                                                <i class="fa-solid fa-trash-can"></i>
+                                            </a>
                                         </td>
                                     </tr>
                                 <?php endwhile; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="6" class="text-center text-muted py-5"><i class="fa-solid fa-folder-open fs-2 mb-3 d-block opacity-50"></i>No bookings found.</td>
+                                    <td colspan="6" class="text-center text-muted py-5">
+                                        <i class="fa-regular fa-calendar-xmark fs-2 mb-3 d-block opacity-50"></i>
+                                        No upcoming classes scheduled.
+                                    </td>
                                 </tr>
                             <?php endif; ?>
                         </tbody>
