@@ -7,22 +7,29 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 }
 
 include 'header.php';
-require 'db_config.php'; // Need this to fetch data from the database!
+require 'db_config.php';
 
 // 2. FETCH DASHBOARD STATISTICS
-// Get total members
 $member_query = $conn->query("SELECT COUNT(id) AS total FROM users WHERE role = 'member'");
 $total_members = $member_query->fetch_assoc()['total'];
 
-// Get total pending queries
-$queries_query = $conn->query("SELECT COUNT(id) AS total FROM queries WHERE status = 'pending'");
-$total_queries = $queries_query->fetch_assoc()['total'];
+$trainers_query = $conn->query("SELECT COUNT(*) AS total FROM users WHERE role = 'trainer'");
+$total_trainers = $trainers_query->fetch_assoc()['total'];
 
-// Fetch the 5 most recent customer queries
-$recent_queries = $conn->query("SELECT * FROM queries ORDER BY created_at DESC LIMIT 5");
+$bookings_count_query = $conn->query("SELECT COUNT(*) AS total FROM bookings");
+$total_bookings = $bookings_count_query->fetch_assoc()['total'];
 
-// Fetch the 5 most recently registered users
-$recent_users = $conn->query("SELECT * FROM users WHERE role = 'member' ORDER BY created_at DESC LIMIT 5");
+// 3. FETCH ALL BOOKINGS (Advanced JOIN)
+$master_schedule_query = $conn->query("
+    SELECT b.id, b.class_name, b.trainer_name, b.booking_date, b.booking_time, b.status, u.fullname AS member_name 
+    FROM bookings b 
+    JOIN users u ON b.user_id = u.id 
+    ORDER BY b.booking_date DESC, b.booking_time DESC
+");
+
+// 4. FETCH RECENT QUERIES & USERS (For the preview tables)
+$recent_queries = $conn->query("SELECT * FROM queries ORDER BY id DESC LIMIT 5");
+$recent_users = $conn->query("SELECT * FROM users WHERE role = 'member' ORDER BY id DESC LIMIT 5");
 ?>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -31,6 +38,7 @@ $recent_users = $conn->query("SELECT * FROM users WHERE role = 'member' ORDER BY
     :root {
         --fz-red: #e63946;
         --fz-dark: #111827;
+        --fz-blue: #2563eb;
     }
 
     body {
@@ -42,7 +50,6 @@ $recent_users = $conn->query("SELECT * FROM users WHERE role = 'member' ORDER BY
         margin-bottom: 50px;
     }
 
-    /* Admin Sidebar */
     .dash-sidebar {
         background: var(--fz-dark);
         border-radius: 16px;
@@ -74,7 +81,17 @@ $recent_users = $conn->query("SELECT * FROM users WHERE role = 'member' ORDER BY
         color: #fff;
     }
 
-    /* Admin Stat Cards */
+    .dash-nav-link.logout {
+        color: #f87171;
+        margin-top: 30px;
+        background-color: rgba(248, 113, 113, 0.1);
+    }
+
+    .dash-nav-link.logout:hover {
+        background-color: #ef4444;
+        color: #fff;
+    }
+
     .admin-stat-card {
         background: #fff;
         border-radius: 16px;
@@ -83,6 +100,7 @@ $recent_users = $conn->query("SELECT * FROM users WHERE role = 'member' ORDER BY
         display: flex;
         align-items: center;
         justify-content: space-between;
+        height: 100%;
     }
 
     .admin-stat-card .icon-box {
@@ -105,6 +123,11 @@ $recent_users = $conn->query("SELECT * FROM users WHERE role = 'member' ORDER BY
         color: #3b82f6;
     }
 
+    .bg-green-light {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+    }
+
     .admin-stat-card h3 {
         font-size: 1.8rem;
         font-weight: 800;
@@ -120,7 +143,6 @@ $recent_users = $conn->query("SELECT * FROM users WHERE role = 'member' ORDER BY
         text-transform: uppercase;
     }
 
-    /* Tables */
     .table-card {
         background: #fff;
         border-radius: 16px;
@@ -140,11 +162,17 @@ $recent_users = $conn->query("SELECT * FROM users WHERE role = 'member' ORDER BY
 </style>
 
 <div class="container dashboard-wrapper">
-
     <div class="row mb-4">
         <div class="col-12">
             <h2 class="fw-bold text-dark">Management <span style="color: var(--fz-red);">Portal</span></h2>
             <p class="text-muted">System Overview & Administration</p>
+
+            <?php if (isset($_GET['success']) && $_GET['success'] == 'deleted'): ?>
+                <div class="alert alert-success alert-dismissible fade show mt-2" role="alert">
+                    <i class="fa-solid fa-circle-check me-2"></i> Booking permanently deleted!
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -152,111 +180,99 @@ $recent_users = $conn->query("SELECT * FROM users WHERE role = 'member' ORDER BY
         <div class="col-lg-3 mb-4 mb-lg-0">
             <div class="dash-sidebar">
                 <a href="admin_dashboard.php" class="dash-nav-link active"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
-                <a href="#" class="dash-nav-link"><i class="fa-solid fa-users"></i> Manage Members</a>
-                <a href="#" class="dash-nav-link"><i class="fa-solid fa-envelope-open-text"></i> Customer Queries</a>
-                <a href="#" class="dash-nav-link"><i class="fa-solid fa-dumbbell"></i> Class Schedule</a>
+                <a href="admin_members.php" class="dash-nav-link"><i class="fa-solid fa-users"></i> Manage Members</a>
+                <a href="admin_queries.php" class="dash-nav-link"><i class="fa-solid fa-envelope-open-text"></i> Customer Queries</a>
+                <a href="admin_dashboard.php" class="dash-nav-link"><i class="fa-solid fa-dumbbell"></i> Class Schedule</a>
+                <a href="logout.php" class="dash-nav-link logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
             </div>
         </div>
 
         <div class="col-lg-9">
-
             <div class="row g-3">
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="admin-stat-card">
                         <div>
-                            <p>Total Registered Members</p>
+                            <p>Total Members</p>
                             <h3><?php echo $total_members; ?></h3>
                         </div>
-                        <div class="icon-box bg-blue-light">
-                            <i class="fa-solid fa-users"></i>
-                        </div>
+                        <div class="icon-box bg-blue-light"><i class="fa-solid fa-users"></i></div>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="admin-stat-card">
                         <div>
-                            <p>Pending Contact Queries</p>
-                            <h3><?php echo $total_queries; ?></h3>
+                            <p>Active Trainers</p>
+                            <h3><?php echo $total_trainers; ?></h3>
                         </div>
-                        <div class="icon-box bg-red-light">
-                            <i class="fa-solid fa-bell"></i>
+                        <div class="icon-box bg-red-light"><i class="fa-solid fa-user-ninja"></i></div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="admin-stat-card">
+                        <div>
+                            <p>Total Bookings</p>
+                            <h3><?php echo $total_bookings; ?></h3>
                         </div>
+                        <div class="icon-box bg-green-light"><i class="fa-solid fa-calendar-check"></i></div>
                     </div>
                 </div>
             </div>
 
             <div class="table-card">
-                <h5 class="fw-bold mb-4">Recent Customer Queries</h5>
+                <h5 class="fw-bold mb-4">Master Booking Ledger</h5>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
                         <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>Subject</th>
-                                <th>Message</th>
+                                <th>Booking ID</th>
+                                <th>Class & Trainer</th>
+                                <th>Member</th>
+                                <th>Date & Time</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php if ($recent_queries->num_rows > 0): ?>
-                                <?php while ($query = $recent_queries->fetch_assoc()): ?>
+                            <?php if ($master_schedule_query->num_rows > 0): ?>
+                                <?php while ($row = $master_schedule_query->fetch_assoc()): ?>
                                     <tr>
-                                        <td class="fw-bold"><?php echo htmlspecialchars($query['name']); ?></td>
-                                        <td><?php echo htmlspecialchars($query['subject']); ?></td>
-                                        <td class="text-muted small"><?php echo substr(htmlspecialchars($query['message']), 0, 40) . '...'; ?></td>
-                                        <td>
-                                            <span class="badge bg-warning text-dark rounded-pill">Pending</span>
+                                        <td class="text-muted fw-bold">#<?php echo str_pad($row['id'], 4, '0', STR_PAD_LEFT); ?></td>
+                                        <td class="fw-bold text-dark">
+                                            <?php echo htmlspecialchars($row['class_name']); ?><br>
+                                            <span class="text-danger small fw-bold text-uppercase">Led by <?php echo htmlspecialchars($row['trainer_name']); ?></span>
                                         </td>
-                                        <td><button class="btn btn-sm btn-outline-secondary">View</button></td>
+                                        <td class="text-primary fw-bold"><i class="fa-solid fa-user me-2 text-muted"></i><?php echo htmlspecialchars($row['member_name']); ?></td>
+                                        <td class="text-muted small">
+                                            <i class="fa-regular fa-calendar me-1"></i> <?php echo date('M d, Y', strtotime($row['booking_date'])); ?><br>
+                                            <i class="fa-regular fa-clock me-1"></i> <?php echo htmlspecialchars($row['booking_time']); ?>
+                                        </td>
+                                        <td>
+                                            <?php if ($row['status'] == 'Confirmed'): ?>
+                                                <span class="badge bg-success bg-opacity-10 text-success border border-success rounded-pill px-3 py-1">Confirmed</span>
+                                            <?php elseif ($row['status'] == 'Pending'): ?>
+                                                <span class="badge bg-warning bg-opacity-10 text-warning border border-warning rounded-pill px-3 py-1">Pending</span>
+                                            <?php else: ?>
+                                                <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary rounded-pill px-3 py-1"><?php echo htmlspecialchars($row['status']); ?></span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td>
+                                            <form action="delete_booking.php" method="POST" class="m-0" onsubmit="return confirm('Are you sure you want to permanently delete this booking?');">
+                                                <input type="hidden" name="booking_id" value="<?php echo $row['id']; ?>">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger fw-bold rounded-pill px-3"><i class="fa-solid fa-trash-can"></i></button>
+                                            </form>
+                                        </td>
                                     </tr>
                                 <?php endwhile; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="5" class="text-center text-muted py-4">No pending queries found.</td>
+                                    <td colspan="6" class="text-center text-muted py-5"><i class="fa-solid fa-folder-open fs-2 mb-3 d-block opacity-50"></i>No bookings found.</td>
                                 </tr>
                             <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
             </div>
-
-            <div class="table-card">
-                <h5 class="fw-bold mb-4">Newest Members</h5>
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Full Name</th>
-                                <th>Email</th>
-                                <th>Fitness Goal</th>
-                                <th>Joined Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if ($recent_users->num_rows > 0): ?>
-                                <?php while ($user = $recent_users->fetch_assoc()): ?>
-                                    <tr>
-                                        <td>#<?php echo $user['id']; ?></td>
-                                        <td class="fw-bold"><?php echo htmlspecialchars($user['fullname']); ?></td>
-                                        <td><?php echo htmlspecialchars($user['email']); ?></td>
-                                        <td><span class="badge bg-light text-dark border"><?php echo ucwords(str_replace('_', ' ', $user['goal'])); ?></span></td>
-                                        <td class="text-muted"><?php echo date('M d, Y', strtotime($user['created_at'])); ?></td>
-                                    </tr>
-                                <?php endwhile; ?>
-                            <?php else: ?>
-                                <tr>
-                                    <td colspan="5" class="text-center text-muted py-4">No members registered yet.</td>
-                                </tr>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
         </div>
     </div>
 </div>
-
 <?php include 'footer.php'; ?>
