@@ -7,14 +7,19 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'member') {
 }
 
 include 'header.php';
-require 'db_config.php'; // Required to fetch the user's live bookings!
+require 'db_config.php';
 
 $user_id = $_SESSION['user_id'];
 
-// Fetch the user's bookings from the database, ordered by closest date first
+// 1. Fetch the user's REAL subscription plan from the database
+$user_query = $conn->query("SELECT subscription_plan FROM users WHERE id = '$user_id'");
+$user_data = $user_query->fetch_assoc();
+$current_plan = isset($user_data['subscription_plan']) ? $user_data['subscription_plan'] : 'Basic';
+
+// 2. Fetch bookings
 $bookings_query = $conn->query("SELECT * FROM bookings WHERE user_id = '$user_id' ORDER BY booking_date ASC, booking_time ASC");
 
-// Calculate how many upcoming classes the user has booked
+// 3. Count upcoming classes
 $current_date = date('Y-m-d');
 $classes_count_query = $conn->query("SELECT COUNT(*) as total FROM bookings WHERE user_id = '$user_id' AND booking_date >= '$current_date'");
 $total_upcoming = $classes_count_query->fetch_assoc()['total'];
@@ -88,6 +93,9 @@ $total_upcoming = $classes_count_query->fetch_assoc()['total'];
         border-left: 5px solid var(--fz-red);
         height: 100%;
         transition: transform 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
 
     .stat-card:hover {
@@ -156,10 +164,9 @@ $total_upcoming = $classes_count_query->fetch_assoc()['total'];
             <p class="text-muted">Here is your fitness overview for today.</p>
 
             <?php if (isset($_GET['success']) && $_GET['success'] == 'booked'): ?>
-                <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
-                    <i class="fa-solid fa-circle-check me-2"></i> Class successfully booked!
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
+                <div class="alert alert-success alert-dismissible fade show mt-3" role="alert"><i class="fa-solid fa-circle-check me-2"></i> Class successfully booked!<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+            <?php elseif (isset($_GET['success']) && $_GET['success'] == 'upgraded'): ?>
+                <div class="alert alert-success alert-dismissible fade show mt-3" role="alert"><i class="fa-solid fa-crown me-2"></i> Subscription upgraded successfully! Enjoy your new perks.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
             <?php endif; ?>
         </div>
     </div>
@@ -169,18 +176,26 @@ $total_upcoming = $classes_count_query->fetch_assoc()['total'];
             <div class="dash-sidebar">
                 <a href="member_dashboard.php" class="dash-nav-link active"><i class="fa-solid fa-house"></i> Overview</a>
                 <a href="classes.php" class="dash-nav-link"><i class="fa-solid fa-calendar-check"></i> Book Class</a>
+                <a href="pricing.php" class="dash-nav-link"><i class="fa-solid fa-crown"></i> Subscriptions</a>
                 <a href="edit_profile.php" class="dash-nav-link"><i class="fa-solid fa-gear"></i> Settings</a>
                 <a href="logout.php" class="dash-nav-link logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
             </div>
         </div>
 
         <div class="col-lg-9">
-
             <div class="row g-3">
                 <div class="col-md-4">
                     <div class="stat-card">
-                        <h3>Pro</h3>
+                        <h3>
+                            <?php if ($current_plan == 'Pro' || $current_plan == 'Elite'): ?>
+                                <i class="fa-solid fa-crown text-warning fs-4 me-2"></i>
+                            <?php endif; ?>
+                            <?php echo htmlspecialchars($current_plan); ?>
+                        </h3>
                         <p>Current Plan</p>
+                        <?php if ($current_plan == 'Basic'): ?>
+                            <a href="pricing.php" class="btn btn-sm btn-outline-danger mt-3 rounded-pill fw-bold">Upgrade Now</a>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -250,9 +265,7 @@ $total_upcoming = $classes_count_query->fetch_assoc()['total'];
                     </table>
                 </div>
             </div>
-
         </div>
     </div>
 </div>
-
 <?php include 'footer.php'; ?>

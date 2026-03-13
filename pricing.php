@@ -1,4 +1,10 @@
-<?php include 'header.php'; ?>
+<?php
+session_start();
+include 'header.php';
+
+// Check if the user is logged in
+$is_logged_in = isset($_SESSION['user_id']);
+?>
 
 <style>
     .page-header {
@@ -51,6 +57,7 @@
 
 <section class="pricing-section">
     <div class="pricing-grid">
+
         <div class="pricing-card">
             <h3>Basic</h3>
             <div class="price">LKR 3,500<span>/mo</span></div>
@@ -60,8 +67,18 @@
                 <li><i class="fa-solid fa-xmark" style="color:#9ca3af"></i> Group Classes</li>
                 <li><i class="fa-solid fa-xmark" style="color:#9ca3af"></i> Personal Trainer</li>
             </ul>
-            <a href="register.php" class="btn-plan">Get Started</a>
+
+            <?php if ($is_logged_in): ?>
+                <form action="checkout_subscription.php" method="POST" class="m-0">
+                    <input type="hidden" name="plan_name" value="Basic">
+                    <input type="hidden" name="plan_price" value="3500">
+                    <button type="submit" class="btn-plan w-100 border-0" style="cursor: pointer;">Upgrade Now</button>
+                </form>
+            <?php else: ?>
+                <a href="register.php" class="btn-plan">Get Started</a>
+            <?php endif; ?>
         </div>
+
         <div class="pricing-card popular">
             <div class="popular-badge">Most Popular</div>
             <h3>Pro</h3>
@@ -72,8 +89,18 @@
                 <li><i class="fa-solid fa-check" style="color:#fff;"></i> All Group Classes</li>
                 <li><i class="fa-solid fa-xmark" style="color:#9ca3af"></i> Personal Trainer</li>
             </ul>
-            <a href="register.php" class="btn-primary" style="display:block; text-align:center;">Get Started</a>
+
+            <?php if ($is_logged_in): ?>
+                <form action="checkout_subscription.php" method="POST" class="m-0">
+                    <input type="hidden" name="plan_name" value="Pro">
+                    <input type="hidden" name="plan_price" value="5500">
+                    <button type="submit" class="btn-primary w-100 border-0" style="cursor: pointer;">Upgrade Now</button>
+                </form>
+            <?php else: ?>
+                <a href="register.php" class="btn-primary" style="display:block; text-align:center;">Get Started</a>
+            <?php endif; ?>
         </div>
+
         <div class="pricing-card">
             <h3>VIP</h3>
             <div class="price">LKR 10,000<span>/mo</span></div>
@@ -83,8 +110,18 @@
                 <li><i class="fa-solid fa-check"></i> All Group Classes</li>
                 <li><i class="fa-solid fa-check"></i> 4 PT Sessions / Month</li>
             </ul>
-            <a href="register.php" class="btn-plan">Get Started</a>
+
+            <?php if ($is_logged_in): ?>
+                <form action="checkout_subscription.php" method="POST" class="m-0">
+                    <input type="hidden" name="plan_name" value="VIP">
+                    <input type="hidden" name="plan_price" value="10000">
+                    <button type="submit" class="btn-plan w-100 border-0" style="cursor: pointer;">Upgrade Now</button>
+                </form>
+            <?php else: ?>
+                <a href="register.php" class="btn-plan">Get Started</a>
+            <?php endif; ?>
         </div>
+
     </div>
 </section>
 

@@ -8,6 +8,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 include 'header.php';
 require 'db_config.php';
 
+// 1. Fetch Basic Stats
 $member_query = $conn->query("SELECT COUNT(id) AS total FROM users WHERE role = 'member'");
 $total_members = $member_query->fetch_assoc()['total'];
 
@@ -17,6 +18,7 @@ $total_trainers = $trainers_query->fetch_assoc()['total'];
 $bookings_count_query = $conn->query("SELECT COUNT(*) AS total FROM bookings");
 $total_bookings = $bookings_count_query->fetch_assoc()['total'];
 
+// 2. Fetch Master Schedule
 $master_schedule_query = $conn->query("
     SELECT b.id, b.class_name, b.trainer_name, b.booking_date, b.booking_time, b.status, u.fullname AS member_name 
     FROM bookings b 
@@ -24,8 +26,10 @@ $master_schedule_query = $conn->query("
     ORDER BY b.booking_date DESC, b.booking_time DESC
 ");
 
-$recent_queries = $conn->query("SELECT * FROM queries ORDER BY id DESC LIMIT 5");
-$recent_users = $conn->query("SELECT * FROM users WHERE role = 'member' ORDER BY id DESC LIMIT 5");
+// 3. Calculate real total revenue from the payments table
+$total_revenue_query = $conn->query("SELECT SUM(amount) as total FROM payments");
+$real_revenue = $total_revenue_query->fetch_assoc()['total'];
+$total_revenue = $real_revenue ? $real_revenue : 0;
 ?>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -90,7 +94,7 @@ $recent_users = $conn->query("SELECT * FROM users WHERE role = 'member' ORDER BY
     .admin-stat-card {
         background: #fff;
         border-radius: 16px;
-        padding: 25px;
+        padding: 20px;
         box-shadow: 0 5px 20px rgba(0, 0, 0, 0.03);
         display: flex;
         align-items: center;
@@ -99,13 +103,13 @@ $recent_users = $conn->query("SELECT * FROM users WHERE role = 'member' ORDER BY
     }
 
     .admin-stat-card .icon-box {
-        width: 60px;
-        height: 60px;
+        width: 50px;
+        height: 50px;
         border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.5rem;
+        font-size: 1.25rem;
     }
 
     .bg-red-light {
@@ -123,8 +127,13 @@ $recent_users = $conn->query("SELECT * FROM users WHERE role = 'member' ORDER BY
         color: #10b981;
     }
 
+    .bg-gold-light {
+        background: rgba(245, 158, 11, 0.1);
+        color: #f59e0b;
+    }
+
     .admin-stat-card h3 {
-        font-size: 1.8rem;
+        font-size: 1.5rem;
         font-weight: 800;
         margin: 0;
         color: var(--fz-dark);
@@ -134,7 +143,7 @@ $recent_users = $conn->query("SELECT * FROM users WHERE role = 'member' ORDER BY
         color: #6b7280;
         font-weight: 600;
         margin: 0;
-        font-size: 0.85rem;
+        font-size: 0.75rem;
         text-transform: uppercase;
     }
 
@@ -177,37 +186,47 @@ $recent_users = $conn->query("SELECT * FROM users WHERE role = 'member' ORDER BY
                 <a href="admin_members.php" class="dash-nav-link"><i class="fa-solid fa-users"></i> Manage Members</a>
                 <a href="admin_queries.php" class="dash-nav-link"><i class="fa-solid fa-envelope-open-text"></i> Customer Queries</a>
                 <a href="admin_schedule.php" class="dash-nav-link"><i class="fa-solid fa-dumbbell"></i> Class Schedule</a>
+                <a href="admin_payments.php" class="dash-nav-link"><i class="fa-solid fa-credit-card"></i> Payment Ledger</a>
                 <a href="logout.php" class="dash-nav-link logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
             </div>
         </div>
 
         <div class="col-lg-9">
             <div class="row g-3">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="admin-stat-card">
                         <div>
-                            <p>Total Members</p>
+                            <p>Members</p>
                             <h3><?php echo $total_members; ?></h3>
                         </div>
                         <div class="icon-box bg-blue-light"><i class="fa-solid fa-users"></i></div>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="admin-stat-card">
                         <div>
-                            <p>Active Trainers</p>
+                            <p>Trainers</p>
                             <h3><?php echo $total_trainers; ?></h3>
                         </div>
                         <div class="icon-box bg-red-light"><i class="fa-solid fa-user-ninja"></i></div>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="admin-stat-card">
                         <div>
-                            <p>Total Bookings</p>
+                            <p>Bookings</p>
                             <h3><?php echo $total_bookings; ?></h3>
                         </div>
                         <div class="icon-box bg-green-light"><i class="fa-solid fa-calendar-check"></i></div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="admin-stat-card border-bottom border-warning border-4">
+                        <div>
+                            <p>Est. Revenue</p>
+                            <h3 class="fs-5"><span class="text-muted small">LKR</span> <?php echo number_format($total_revenue); ?></h3>
+                        </div>
+                        <div class="icon-box bg-gold-light"><i class="fa-solid fa-money-bill-wave"></i></div>
                     </div>
                 </div>
             </div>

@@ -10,14 +10,21 @@ require 'db_config.php';
 
 $trainer_name = $conn->real_escape_string($_SESSION['fullname']);
 
+// Total all-time bookings
 $total_query = $conn->query("SELECT COUNT(*) AS total FROM bookings WHERE trainer_name = '$trainer_name'");
 $total_clients = $total_query->fetch_assoc()['total'];
 
+// Upcoming bookings
 $current_date = date('Y-m-d');
 $upcoming_query = $conn->query("SELECT COUNT(*) AS total FROM bookings WHERE trainer_name = '$trainer_name' AND booking_date >= '$current_date'");
 $upcoming_sessions = $upcoming_query->fetch_assoc()['total'];
 
-// Grabs 'b.id' so we can update specific bookings
+// Calculate Total Earnings! (LKR 2,000 per CONFIRMED class)
+$earnings_query = $conn->query("SELECT COUNT(*) AS total FROM bookings WHERE trainer_name = '$trainer_name' AND status = 'Confirmed'");
+$confirmed_classes = $earnings_query->fetch_assoc()['total'];
+$total_earnings = $confirmed_classes * 2000;
+
+// Fetch the schedule
 $schedule_query = $conn->query("
     SELECT b.id AS booking_id, b.class_name, b.booking_date, b.booking_time, b.status, u.fullname AS member_name 
     FROM bookings b 
@@ -28,7 +35,6 @@ $schedule_query = $conn->query("
 ?>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
 <style>
     :root {
         --fz-red: #e63946;
@@ -93,10 +99,13 @@ $schedule_query = $conn->query("
         box-shadow: 0 5px 20px rgba(0, 0, 0, 0.03);
         border-left: 5px solid var(--fz-red);
         height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
 
     .stat-card h3 {
-        font-size: 2rem;
+        font-size: 1.8rem;
         font-weight: 800;
         color: var(--fz-dark);
         margin-bottom: 5px;
@@ -106,7 +115,7 @@ $schedule_query = $conn->query("
         color: #6b7280;
         font-weight: 600;
         margin: 0;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         text-transform: uppercase;
     }
 
@@ -132,11 +141,11 @@ $schedule_query = $conn->query("
     <div class="row mb-4">
         <div class="col-12">
             <h2 class="fw-bold text-dark">Instructor <span style="color: var(--fz-red);">Portal</span></h2>
-            <p class="text-muted">Welcome back, <?php echo htmlspecialchars($trainer_name); ?>. Here is your class schedule.</p>
+            <p class="text-muted">Welcome back, <?php echo htmlspecialchars($trainer_name); ?>. Here is your schedule and earnings.</p>
 
             <?php if (isset($_GET['success']) && $_GET['success'] == 'confirmed'): ?>
                 <div class="alert alert-success alert-dismissible fade show mt-2" role="alert">
-                    <i class="fa-solid fa-circle-check me-2"></i> Booking successfully confirmed!
+                    <i class="fa-solid fa-circle-check me-2"></i> Booking confirmed! LKR 2,000 added to your earnings.
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             <?php endif; ?>
@@ -153,16 +162,22 @@ $schedule_query = $conn->query("
 
         <div class="col-lg-9">
             <div class="row g-3">
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="stat-card">
                         <h3><?php echo $upcoming_sessions; ?></h3>
                         <p>Upcoming Sessions</p>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="stat-card" style="border-left-color: #111827;">
                         <h3><?php echo $total_clients; ?></h3>
-                        <p>Total All-Time Bookings</p>
+                        <p>Total Bookings</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card" style="border-left-color: #f59e0b; background: rgba(245, 158, 11, 0.05);">
+                        <h3 class="text-warning"><span class="fs-6 text-muted">LKR</span> <?php echo number_format($total_earnings); ?></h3>
+                        <p>Total Earnings</p>
                     </div>
                 </div>
             </div>
@@ -207,7 +222,7 @@ $schedule_query = $conn->query("
                                 <?php endwhile; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="4" class="text-center text-muted py-5"><i class="fa-solid fa-clipboard-list fs-2 mb-3 d-block opacity-50"></i>You currently have no members booked.</td>
+                                    <td colspan="4" class="text-center text-muted py-5">You currently have no members booked.</td>
                                 </tr>
                             <?php endif; ?>
                         </tbody>
@@ -217,5 +232,4 @@ $schedule_query = $conn->query("
         </div>
     </div>
 </div>
-
 <?php include 'footer.php'; ?>

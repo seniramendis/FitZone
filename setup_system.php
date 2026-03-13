@@ -14,6 +14,18 @@ if ($check_column->num_rows == 0) {
     echo "<p>✔️ <strong>bookings</strong> table is already up to date.</p>";
 }
 
+// 1.5 CREATE PAYMENTS TABLE
+$create_payments_table = "CREATE TABLE IF NOT EXISTS payments (
+    id INT(11) AUTO_INCREMENT PRIMARY KEY,
+    user_id INT(11) NOT NULL,
+    amount INT(11) NOT NULL,
+    transaction_type VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)";
+if ($conn->query($create_payments_table)) {
+    echo "<p>✅ Added <strong>payments</strong> table to track revenue.</p>";
+}
+
 // 2. DEFAULT PASSWORDS
 $trainer_password = password_hash('Trainer@123', PASSWORD_DEFAULT);
 $admin_password = password_hash('Admin@123', PASSWORD_DEFAULT);
