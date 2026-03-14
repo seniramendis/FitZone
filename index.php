@@ -1,4 +1,125 @@
-<?php include 'header.php'; ?>
+<?php
+// 1. SMART LOGIN LOGIC
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+$is_logged_in = isset($_SESSION['user_id']);
+$dashboard_link = 'login.php';
+if ($is_logged_in) {
+    if ($_SESSION['role'] === 'admin') $dashboard_link = 'admin_dashboard.php';
+    elseif ($_SESSION['role'] === 'trainer') $dashboard_link = 'trainer_dashboard.php';
+    else $dashboard_link = 'member_dashboard.php';
+}
+
+include 'header.php';
+?>
+
+<style>
+    /* --- CAROUSEL STYLING (Programs & Trainers) --- */
+    .programs-carousel,
+    .trainers-carousel {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        gap: 25px;
+        padding: 20px 10px 40px 10px;
+        /* Padding for the shadow overflow */
+        max-width: 1200px;
+        margin: 0 auto;
+
+        /* Custom Scrollbar */
+        scrollbar-width: thin;
+        scrollbar-color: #e63946 #f3f4f6;
+    }
+
+    .programs-carousel::-webkit-scrollbar,
+    .trainers-carousel::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    .programs-carousel::-webkit-scrollbar-track,
+    .trainers-carousel::-webkit-scrollbar-track {
+        background: #f3f4f6;
+        border-radius: 10px;
+    }
+
+    .programs-carousel::-webkit-scrollbar-thumb,
+    .trainers-carousel::-webkit-scrollbar-thumb {
+        background-color: #e63946;
+        border-radius: 10px;
+    }
+
+    /* Standardize card sizes for both carousels */
+    .programs-carousel .program-card,
+    .trainers-carousel .trainer-card {
+        flex: 0 0 350px;
+        scroll-snap-align: start;
+        margin: 0;
+    }
+
+    /* --- PROGRAMS HOVER BUTTON --- */
+    .btn-book-class {
+        display: inline-block;
+        margin-top: 15px;
+        padding: 8px 20px;
+        background-color: #e63946;
+        color: #fff !important;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        border-radius: 6px;
+        text-decoration: none;
+        letter-spacing: 1px;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        opacity: 0;
+        transform: translateY(20px);
+        pointer-events: none;
+    }
+
+    .program-card:hover .btn-book-class {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+    }
+
+    .btn-book-class:hover {
+        background-color: #c1121f;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(230, 57, 70, 0.4);
+    }
+
+    /* --- TRAINER PROFILE BUTTON --- */
+    .btn-profile {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 8px 24px;
+        background: rgba(230, 57, 70, 0.1);
+        color: #e63946;
+        border-radius: 50px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-profile:hover {
+        background: #e63946;
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(230, 57, 70, 0.2);
+    }
+
+    /* Mobile Responsiveness for Carousels */
+    @media (max-width: 768px) {
+
+        .programs-carousel .program-card,
+        .trainers-carousel .trainer-card {
+            flex: 0 0 85%;
+            /* Shows 1 full card and peeks the next one */
+            scroll-snap-align: center;
+        }
+    }
+</style>
 
 <section id="home" class="hero">
     <div class="hero-overlay"></div>
@@ -7,18 +128,25 @@
             <h1 id="hero-heading">Modernizing Your Fitness Journey</h1>
             <p id="hero-subtext">The most trusted health and wellness center in Kurunegala. Access high-end equipment, professional trainers, and dynamic classes.</p>
         </div>
-        <a href="register.php" class="btn-primary">Join Now</a>
+
+        <?php if ($is_logged_in): ?>
+            <a href="<?php echo $dashboard_link; ?>" class="btn-primary">Go to Dashboard</a>
+        <?php else: ?>
+            <a href="register.php" class="btn-primary">Join Now</a>
+        <?php endif; ?>
     </div>
 </section>
 
 <section id="programs" class="programs-section">
     <h2 class="section-title">Explore Our Programs</h2>
-    <div class="programs-grid">
+
+    <div class="programs-carousel">
         <div class="program-card" style="background-image: url('https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=800&auto=format&fit=crop');">
             <div class="program-overlay"></div>
             <div class="program-info">
                 <h3>Strength & Power</h3>
                 <p>Build muscle and increase your raw power with our premium free weights and resistance machines.</p>
+                <a href="class_details.php?id=1" class="btn-book-class">View & Book</a>
             </div>
         </div>
         <div class="program-card" style="background-image: url('https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=800&auto=format&fit=crop');">
@@ -26,6 +154,7 @@
             <div class="program-info">
                 <h3>Cardio & HIIT</h3>
                 <p>Burn calories fast and boost your endurance with high-intensity intervals and top-tier cardio equipment.</p>
+                <a href="class_details.php?id=2" class="btn-book-class">View & Book</a>
             </div>
         </div>
         <div class="program-card" style="background-image: url('https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=800&auto=format&fit=crop');">
@@ -33,6 +162,31 @@
             <div class="program-info">
                 <h3>Yoga & Mobility</h3>
                 <p>Enhance your flexibility, balance, and core strength in our guided, relaxing studio sessions.</p>
+                <a href="class_details.php?id=3" class="btn-book-class">View & Book</a>
+            </div>
+        </div>
+        <div class="program-card" style="background-image: url('https://images.unsplash.com/photo-1549833284-6a7df91c1f65?q=80&w=800&auto=format&fit=crop');">
+            <div class="program-overlay"></div>
+            <div class="program-info">
+                <h3>Boxing & Martial Arts</h3>
+                <p>Improve your agility, speed, and self-defense skills with our heavy bags and expert striking coaches.</p>
+                <a href="class_details.php?id=4" class="btn-book-class">View & Book</a>
+            </div>
+        </div>
+        <div class="program-card" style="background-image: url('https://images.unsplash.com/photo-1538805060514-97d9cc17730c?q=80&w=800&auto=format&fit=crop');">
+            <div class="program-overlay"></div>
+            <div class="program-info">
+                <h3>CrossFit & Conditioning</h3>
+                <p>A hardcore mix of Olympic weightlifting, gymnastics, and aerobic exercise for ultimate functional fitness.</p>
+                <a href="class_details.php?id=5" class="btn-book-class">View & Book</a>
+            </div>
+        </div>
+        <div class="program-card" style="background-image: url('https://images.unsplash.com/photo-1524594152303-9fd13543fe6e?q=80&w=800&auto=format&fit=crop');">
+            <div class="program-overlay"></div>
+            <div class="program-info">
+                <h3>Zumba & Dance</h3>
+                <p>Burn calories while having a blast. A high-energy, rhythm-based workout perfect for all fitness levels.</p>
+                <a href="class_details.php?id=6" class="btn-book-class">View & Book</a>
             </div>
         </div>
     </div>
@@ -61,7 +215,8 @@
 
 <section id="trainers" class="trainers-section">
     <h2 class="section-title">Meet Our Experts</h2>
-    <div class="trainers-grid">
+
+    <div class="trainers-carousel">
         <div class="trainer-card">
             <div class="trainer-img" style="background-image: url('https://images.unsplash.com/photo-1567013127542-490d757e51fc?q=80&w=600&auto=format&fit=crop');"></div>
             <h3>Nuwan Perera</h3>
@@ -70,6 +225,7 @@
                 <a href="#"><i class="fa-brands fa-instagram"></i></a>
                 <a href="#"><i class="fa-brands fa-twitter"></i></a>
             </div>
+            <a href="trainer_profile.php?id=1" class="btn-profile">View Profile</a>
         </div>
         <div class="trainer-card">
             <div class="trainer-img" style="background-image: url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=600&auto=format&fit=crop');"></div>
@@ -79,6 +235,7 @@
                 <a href="#"><i class="fa-brands fa-instagram"></i></a>
                 <a href="#"><i class="fa-brands fa-twitter"></i></a>
             </div>
+            <a href="trainer_profile.php?id=2" class="btn-profile">View Profile</a>
         </div>
         <div class="trainer-card">
             <div class="trainer-img" style="background-image: url('https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=600&auto=format&fit=crop');"></div>
@@ -88,6 +245,37 @@
                 <a href="#"><i class="fa-brands fa-instagram"></i></a>
                 <a href="#"><i class="fa-brands fa-twitter"></i></a>
             </div>
+            <a href="trainer_profile.php?id=3" class="btn-profile">View Profile</a>
+        </div>
+        <div class="trainer-card">
+            <div class="trainer-img" style="background-image: url('https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=600&auto=format&fit=crop');"></div>
+            <h3>Senuri Fernando</h3>
+            <p class="specialty">Pilates & Core Expert</p>
+            <div class="trainer-socials">
+                <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#"><i class="fa-brands fa-twitter"></i></a>
+            </div>
+            <a href="trainer_profile.php?id=4" class="btn-profile">View Profile</a>
+        </div>
+        <div class="trainer-card">
+            <div class="trainer-img" style="background-image: url('https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=600&auto=format&fit=crop');"></div>
+            <h3>Roshan Silva</h3>
+            <p class="specialty">Boxing & Martial Arts</p>
+            <div class="trainer-socials">
+                <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#"><i class="fa-brands fa-twitter"></i></a>
+            </div>
+            <a href="trainer_profile.php?id=5" class="btn-profile">View Profile</a>
+        </div>
+        <div class="trainer-card">
+            <div class="trainer-img" style="background-image: url('https://images.unsplash.com/photo-1558611848-73f7eb4001a1?q=80&w=600&auto=format&fit=crop');"></div>
+            <h3>Malith Kumara</h3>
+            <p class="specialty">CrossFit & Conditioning</p>
+            <div class="trainer-socials">
+                <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#"><i class="fa-brands fa-twitter"></i></a>
+            </div>
+            <a href="trainer_profile.php?id=6" class="btn-profile">View Profile</a>
         </div>
     </div>
 </section>
@@ -95,6 +283,7 @@
 <section id="memberships" class="pricing-section">
     <h2 class="section-title">Choose Your Plan</h2>
     <div class="pricing-grid">
+
         <div class="pricing-card">
             <h3>Basic</h3>
             <div class="price">LKR 3,500<span>/mo</span></div>
@@ -104,8 +293,17 @@
                 <li><i class="fa-solid fa-xmark" style="color:#9ca3af"></i> Group Classes</li>
                 <li><i class="fa-solid fa-xmark" style="color:#9ca3af"></i> Personal Trainer</li>
             </ul>
-            <a href="register.php" class="btn-plan">Get Started</a>
+            <?php if ($is_logged_in): ?>
+                <form action="checkout_subscription.php" method="POST" style="margin: 0;">
+                    <input type="hidden" name="plan_name" value="Basic">
+                    <input type="hidden" name="plan_price" value="3500">
+                    <button type="submit" class="btn-plan" style="width: 100%; cursor: pointer; background-color: transparent;">Upgrade Now</button>
+                </form>
+            <?php else: ?>
+                <a href="register.php" class="btn-plan">Get Started</a>
+            <?php endif; ?>
         </div>
+
         <div class="pricing-card popular">
             <div class="popular-badge">Most Popular</div>
             <h3>Pro</h3>
@@ -116,8 +314,17 @@
                 <li><i class="fa-solid fa-check" style="color:#fff;"></i> All Group Classes</li>
                 <li><i class="fa-solid fa-xmark" style="color:#9ca3af"></i> Personal Trainer</li>
             </ul>
-            <a href="register.php" class="btn-primary" style="display:block; text-align:center;">Get Started</a>
+            <?php if ($is_logged_in): ?>
+                <form action="checkout_subscription.php" method="POST" style="margin: 0;">
+                    <input type="hidden" name="plan_name" value="Pro">
+                    <input type="hidden" name="plan_price" value="5500">
+                    <button type="submit" class="btn-primary" style="display: block; width: 100%; text-align: center; cursor: pointer; border: none;">Upgrade Now</button>
+                </form>
+            <?php else: ?>
+                <a href="register.php" class="btn-primary" style="display:block; text-align:center;">Get Started</a>
+            <?php endif; ?>
         </div>
+
         <div class="pricing-card">
             <h3>VIP</h3>
             <div class="price">LKR 10,000<span>/mo</span></div>
@@ -127,8 +334,17 @@
                 <li><i class="fa-solid fa-check"></i> All Group Classes</li>
                 <li><i class="fa-solid fa-check"></i> 4 PT Sessions / Month</li>
             </ul>
-            <a href="register.php" class="btn-plan">Get Started</a>
+            <?php if ($is_logged_in): ?>
+                <form action="checkout_subscription.php" method="POST" style="margin: 0;">
+                    <input type="hidden" name="plan_name" value="VIP">
+                    <input type="hidden" name="plan_price" value="10000">
+                    <button type="submit" class="btn-plan" style="width: 100%; cursor: pointer; background-color: transparent;">Upgrade Now</button>
+                </form>
+            <?php else: ?>
+                <a href="register.php" class="btn-plan">Get Started</a>
+            <?php endif; ?>
         </div>
+
     </div>
 </section>
 
