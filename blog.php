@@ -1,13 +1,12 @@
 <?php include 'header.php'; ?>
 
 <style>
-    /* --- BLOG HEADER --- */
     .page-header {
         position: relative;
         width: 100%;
         height: 40vh;
         margin-top: 60px;
-        /* Offsets the fixed header */
+
         background-image: url('https://images.unsplash.com/photo-1574680096145-d05b474e2155?q=80&w=1920&auto=format&fit=crop');
         background-size: cover;
         background-position: center;

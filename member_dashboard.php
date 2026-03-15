@@ -11,15 +11,15 @@ require 'db_config.php';
 
 $user_id = $_SESSION['user_id'];
 
-// 1. Fetch the user's REAL subscription plan from the database
+
 $user_query = $conn->query("SELECT subscription_plan FROM users WHERE id = '$user_id'");
 $user_data = $user_query->fetch_assoc();
 $current_plan = isset($user_data['subscription_plan']) ? $user_data['subscription_plan'] : 'Basic';
 
-// 2. Fetch bookings
+
 $bookings_query = $conn->query("SELECT * FROM bookings WHERE user_id = '$user_id' ORDER BY booking_date ASC, booking_time ASC");
 
-// 3. Count upcoming classes
+
 $current_date = date('Y-m-d');
 $classes_count_query = $conn->query("SELECT COUNT(*) as total FROM bookings WHERE user_id = '$user_id' AND booking_date >= '$current_date'");
 $total_upcoming = $classes_count_query->fetch_assoc()['total'];

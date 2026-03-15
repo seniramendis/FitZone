@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-// Security: Must be logged in and must have clicked a plan button
+
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
@@ -14,7 +14,7 @@ if ($_SERVER["REQUEST_METHOD"] != "POST" || !isset($_POST['plan_name'])) {
 
 include 'header.php';
 
-// Grab the details passed from pricing.php
+
 $plan_name = htmlspecialchars($_POST['plan_name']);
 $plan_price = htmlspecialchars($_POST['plan_price']);
 ?>

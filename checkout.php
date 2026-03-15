@@ -16,7 +16,7 @@ $trainer_name = htmlspecialchars($_POST['trainer_name']);
 $booking_date = htmlspecialchars($_POST['booking_date']);
 $booking_time = htmlspecialchars($_POST['booking_time']);
 
-// The precise Service Fee that goes towards the Trainer's Payroll
+
 $service_fee = 2000;
 ?>
 

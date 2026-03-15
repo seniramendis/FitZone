@@ -1,6 +1,6 @@
 <?php
 session_start();
-// Security check: Only logged-in users can book a class
+
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php?error=login_required");
     exit();
@@ -8,7 +8,7 @@ if (!isset($_SESSION['user_id'])) {
 
 include 'header.php';
 
-// Check if a specific class was passed through the URL (e.g., from classes.php)
+
 $pre_selected_class = isset($_GET['class']) ? $_GET['class'] : '';
 ?>
 

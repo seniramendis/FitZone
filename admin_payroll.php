@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-// SECURITY: Only Admins can access this page
+
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header("Location: login.php");
     exit();
@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 include 'header.php';
 require 'db_config.php';
 
-// ADVANCED SQL: Calculate exact payroll per trainer by grouping their confirmed classes (LKR 2000 per class)
+
 $payroll_query = $conn->query("
     SELECT trainer_name, 
            COUNT(id) AS classes_taught, 
@@ -21,7 +21,7 @@ $payroll_query = $conn->query("
     ORDER BY total_owed DESC
 ");
 
-// Calculate the total money the gym has to pay out overall
+
 $total_payout_query = $conn->query("SELECT (COUNT(id) * 2000) AS master_total FROM bookings WHERE status = 'Confirmed'");
 $master_total = $total_payout_query->fetch_assoc()['master_total'];
 $master_total = $master_total ? $master_total : 0;

@@ -1,7 +1,6 @@
 <?php include 'header.php'; ?>
 
 <style>
-    /* --- PAGE HEADER --- */
     .page-header {
         position: relative;
         width: 100%;
@@ -42,7 +41,7 @@
         color: #e63946;
     }
 
-    /* --- SEARCH BAR --- */
+
     .search-container {
         max-width: 600px;
         margin: -30px auto 50px auto;
@@ -86,7 +85,7 @@
         background: transparent;
     }
 
-    /* --- BOOK NOW BUTTON HOVER STYLING --- */
+
     .btn-book-class {
         display: inline-block;
         margin-top: 15px;
@@ -101,13 +100,13 @@
         letter-spacing: 1px;
         transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
-        /* Hidden by default */
+
         opacity: 0;
         transform: translateY(20px);
         pointer-events: none;
     }
 
-    /* Reveal button when hovering over the program card */
+
     .program-card:hover .btn-book-class {
         opacity: 1;
         transform: translateY(0);

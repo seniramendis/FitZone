@@ -1,5 +1,5 @@
 <?php
-// 1. START SESSION & SECURITY CHECK
+
 session_start();
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
@@ -9,29 +9,28 @@ if (!isset($_SESSION['user_id'])) {
 require 'db_config.php';
 $user_id = $_SESSION['user_id'];
 
-// 2. PROCESS THE FORM SUBMISSION
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    // Grab and sanitize the new inputs
+
     $fullname = $conn->real_escape_string($_POST['fullname']);
     $email = $conn->real_escape_string($_POST['email']);
     $goal = $conn->real_escape_string($_POST['goal']);
 
-    // Update the core user data in the database
+
     $update_sql = "UPDATE users SET fullname = '$fullname', email = '$email', goal = '$goal' WHERE id = $user_id";
 
     if ($conn->query($update_sql) === TRUE) {
 
-        // 🔥 REAL-TIME UPDATE: Update the session variable immediately! 
+
         $_SESSION['fullname'] = $fullname;
 
-        // 3. OPTIONAL PASSWORD UPDATE
+
         if (!empty($_POST['new_password'])) {
             $new_password = password_hash($_POST['new_password'], PASSWORD_DEFAULT);
             $conn->query("UPDATE users SET password = '$new_password' WHERE id = $user_id");
         }
 
-        // THE FIX: Force the page to redirect and reload so the header updates instantly
         header("Location: edit_profile.php?success=updated");
         exit();
     } else {
@@ -40,7 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-// 4. FETCH CURRENT USER DATA TO PRE-FILL THE FORM
+
 $sql = "SELECT * FROM users WHERE id = $user_id";
 $result = $conn->query($sql);
 $user_data = $result->fetch_assoc();

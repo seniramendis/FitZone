@@ -1,10 +1,10 @@
 <?php
 require 'db_config.php';
 
-// 1. Force the database column to accept the word 'Pending'
+
 $conn->query("ALTER TABLE bookings MODIFY COLUMN status ENUM('Pending', 'Confirmed', 'Waitlist', 'Cancelled') DEFAULT 'Pending'");
 
-// 2. Change every single booking in the system to 'Pending'
+
 if ($conn->query("UPDATE bookings SET status = 'Pending'")) {
     echo "<div style='text-align: center; margin-top: 50px; font-family: sans-serif;'>";
     echo "<h1 style='color: #2ecc71;'>✅ Database Successfully Fixed!</h1>";

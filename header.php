@@ -1,5 +1,5 @@
 <?php
-// Start the session at the very beginning of the header if it hasn't started yet
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }

@@ -1,4 +1,4 @@
-/* --- GLOBAL RESET --- */
+
 html, body {
     margin: 0;
     padding: 0;
@@ -10,7 +10,7 @@ html, body {
     overflow-x: hidden;
 }
 
-/* --- HERO SECTION: FULL SCREEN --- */
+
 .hero {
     position: relative;
     width: 100%;
@@ -69,16 +69,14 @@ html, body {
     transform: translateY(-3px);
 }
 
-/* --- FADE EFFECT FOR SLIDER --- */
+
 .fade-transition {
     opacity: 1;
     transition: opacity 0.5s ease-in-out;
 }
 .fade-out { opacity: 0; }
 
-/* =========================================
-   PROGRAMS SECTION (IMAGE CARDS)
-   ========================================= */
+
 .programs-section {
     padding: 80px 5%;
     background-color: #ffffff;
@@ -158,7 +156,7 @@ html, body {
     opacity: 1; 
 }
 
-/* --- MODERN FEATURES SECTION --- */
+
 .features-section {
     padding: 80px 5%;
     text-align: center;
@@ -214,9 +212,7 @@ html, body {
     font-size: 0.95rem;
 }
 
-/* =========================================
-   TRAINERS SECTION
-   ========================================= */
+
 .trainers-section {
     padding: 80px 5%;
     background-color: #f9fafb;
@@ -277,9 +273,7 @@ html, body {
     color: #e63946;
 }
 
-/* =========================================
-   PRICING SECTION
-   ========================================= */
+
 .pricing-section {
     padding: 80px 5%;
     background-color: #ffffff;
@@ -396,9 +390,7 @@ html, body {
     color: #fff;
 }
 
-/* =========================================
-   LOCATION SECTION
-   ========================================= */
+
 .location-section {
     padding: 80px 5%;
     background-color: #f9fafb;
@@ -474,9 +466,7 @@ html, body {
     min-height: 400px;
 }
 
-/* =========================================
-   BODY MOBILE RESPONSIVENESS (WITH CAROUSELS)
-   ========================================= */
+
 @media (max-width: 900px) {
     .location-container {
         flex-direction: column;

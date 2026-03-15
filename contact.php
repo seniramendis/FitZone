@@ -12,7 +12,7 @@
         background-color: #f8f9fa;
     }
 
-    /* Page Header */
+
     .page-header {
         position: relative;
         width: 100%;
@@ -43,7 +43,7 @@
         padding: 0 20px;
     }
 
-    /* Contact Section */
+
     .contact-card {
         margin-top: -50px;
         margin-bottom: 80px;

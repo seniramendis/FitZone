@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-// SECURITY: Only Admins can access this page
+
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header("Location: login.php");
     exit();
@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 include 'header.php';
 require 'db_config.php';
 
-// Fetch ALL payments, joining with the users table to get the member's name
+
 $payments_query = $conn->query("
     SELECT p.id, p.amount, p.transaction_type, p.created_at, u.fullname, u.email 
     FROM payments p 
@@ -18,7 +18,7 @@ $payments_query = $conn->query("
     ORDER BY p.created_at DESC
 ");
 
-// Calculate real total revenue from the payments table
+
 $total_revenue_query = $conn->query("SELECT SUM(amount) as total FROM payments");
 $real_revenue = $total_revenue_query->fetch_assoc()['total'];
 $real_revenue = $real_revenue ? $real_revenue : 0;

@@ -1,5 +1,5 @@
 <?php
-// 1. SMART LOGIN LOGIC
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -15,7 +15,6 @@ include 'header.php';
 ?>
 
 <style>
-    /* --- CAROUSEL STYLING (Programs & Trainers) --- */
     .programs-carousel,
     .trainers-carousel {
         display: flex;
@@ -23,11 +22,11 @@ include 'header.php';
         scroll-snap-type: x mandatory;
         gap: 25px;
         padding: 20px 10px 40px 10px;
-        /* Padding for the shadow overflow */
+
         max-width: 1200px;
         margin: 0 auto;
 
-        /* Custom Scrollbar */
+
         scrollbar-width: thin;
         scrollbar-color: #e63946 #f3f4f6;
     }
@@ -49,7 +48,7 @@ include 'header.php';
         border-radius: 10px;
     }
 
-    /* Standardize card sizes for both carousels */
+
     .programs-carousel .program-card,
     .trainers-carousel .trainer-card {
         flex: 0 0 350px;
@@ -57,7 +56,7 @@ include 'header.php';
         margin: 0;
     }
 
-    /* --- PROGRAMS HOVER BUTTON --- */
+
     .btn-book-class {
         display: inline-block;
         margin-top: 15px;
@@ -88,7 +87,7 @@ include 'header.php';
         box-shadow: 0 5px 15px rgba(230, 57, 70, 0.4);
     }
 
-    /* --- TRAINER PROFILE BUTTON --- */
+
     .btn-profile {
         display: inline-block;
         margin-top: 20px;
@@ -115,7 +114,7 @@ include 'header.php';
         .programs-carousel .program-card,
         .trainers-carousel .trainer-card {
             flex: 0 0 85%;
-            /* Shows 1 full card and peeks the next one */
+
             scroll-snap-align: center;
         }
     }

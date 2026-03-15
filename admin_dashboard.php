@@ -8,7 +8,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 include 'header.php';
 require 'db_config.php';
 
-// 1. Fetch Basic Stats
+
 $member_query = $conn->query("SELECT COUNT(id) AS total FROM users WHERE role = 'member'");
 $total_members = $member_query->fetch_assoc()['total'];
 
@@ -18,7 +18,7 @@ $total_trainers = $trainers_query->fetch_assoc()['total'];
 $bookings_count_query = $conn->query("SELECT COUNT(*) AS total FROM bookings");
 $total_bookings = $bookings_count_query->fetch_assoc()['total'];
 
-// 2. Fetch Master Schedule
+
 $master_schedule_query = $conn->query("
     SELECT b.id, b.class_name, b.trainer_name, b.booking_date, b.booking_time, b.status, u.fullname AS member_name 
     FROM bookings b 
@@ -26,7 +26,7 @@ $master_schedule_query = $conn->query("
     ORDER BY b.booking_date DESC, b.booking_time DESC
 ");
 
-// 3. Calculate real total revenue from the payments table
+
 $total_revenue_query = $conn->query("SELECT SUM(amount) as total FROM payments");
 $real_revenue = $total_revenue_query->fetch_assoc()['total'];
 $total_revenue = $real_revenue ? $real_revenue : 0;
